@@ -6,13 +6,13 @@ export const Viewport = {
   height: Dimensions.get("window").height,
 };
 export const Colors = {
-  primaryColor1: "#060E57",
+  primaryColor1: "#BC723C",
   primaryColor2: "#D9D9D9",
   primaryColor3: "#AEAEAE",
   primaryColor4: "#E8A51C",
   secondaryColor1: "#FFFFFF",
   secondaryColor2: "#A7A7A7",
-  secondaryColor3: "#1F78FF",
+  secondaryColor3: "black",
   secondaryColor4: "#616161",
   errorColor: "red",
 };
