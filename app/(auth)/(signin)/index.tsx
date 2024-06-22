@@ -1,4 +1,5 @@
 import { Text, View, Image } from "react-native";
+import { useState } from "react";
 import { LinearGradientBG } from "@/components/LinearGradientBG";
 import {
   customizeFont,
@@ -7,9 +8,14 @@ import {
   Styles,
   Viewport,
 } from "@/styles/styles";
+import { InputField } from "@/components/InputField";
 
 export default function Signin() {
   const fontLoaded = customizeFont();
+  const [data, setData] = useState({
+    username: "",
+    password: "",
+  });
 
   return (
     <LinearGradientBG
@@ -53,6 +59,50 @@ export default function Signin() {
               ideal boarding house, and forge new connections!
             </Text>
           )}
+        </View>
+        <View
+          style={{
+            width: Viewport.width * 0.85,
+            marginTop: Viewport.height * 0.03,
+            alignItems: "center",
+            gap: 20,
+          }}
+        >
+          <InputField
+            value={data.username}
+            placeholder="Username"
+            autoCapitalize="none"
+            style={{
+              width: Viewport.width * 0.8,
+              height: Viewport.height * 0.05,
+              paddingLeft: 10,
+            }}
+            onChangeText={(value) => {
+              setData({
+                ...data,
+                username: value,
+              });
+            }}
+            floatingPlaceHolder
+          />
+          <InputField
+            value={data.password}
+            placeholder="Password"
+            autoCapitalize="none"
+            style={{
+              width: Viewport.width * 0.8,
+              height: Viewport.height * 0.05,
+              paddingLeft: 10,
+            }}
+            onChangeText={(value) => {
+              setData({
+                ...data,
+                password: value,
+              });
+            }}
+            floatingPlaceHolder
+            secureTextEntry
+          />
         </View>
       </View>
     </LinearGradientBG>
