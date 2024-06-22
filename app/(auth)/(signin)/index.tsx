@@ -1,4 +1,5 @@
 import { Text, View, Image } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useState } from "react";
 import { LinearGradientBG } from "@/components/LinearGradientBG";
 import {
@@ -9,6 +10,7 @@ import {
   Viewport,
 } from "@/styles/styles";
 import { InputField } from "@/components/InputField";
+import { Button } from "@/components/Button";
 
 export default function Signin() {
   const fontLoaded = customizeFont();
@@ -18,14 +20,24 @@ export default function Signin() {
   });
 
   return (
-    <LinearGradientBG
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+    <KeyboardAwareScrollView
+      contentContainerStyle={{
+        width: Viewport.width * 1,
+        height: Viewport.height * 1.1,
       }}
+      keyboardShouldPersistTaps="handled"
+      scrollEnabled={true}
+      enableAutomaticScroll={false}
+      enableOnAndroid={true}
     >
-      <View style={Styles.container}>
+      <LinearGradientBG
+        style={{
+          width: Viewport.width * 1,
+          height: Viewport.height * 1.1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <View style={Styles.flexRow}>
           <Image source={require("@/assets/images/icon-logo.png")} />
           {fontLoaded[0] && (
@@ -104,7 +116,68 @@ export default function Signin() {
             secureTextEntry
           />
         </View>
-      </View>
-    </LinearGradientBG>
+        <View
+          style={{
+            width: Viewport.width * 0.8,
+            height: Viewport.height * 0.35,
+            marginTop: Viewport.height * 0.01,
+            gap: 40,
+          }}
+        >
+          <View
+            style={{
+              width: Viewport.width * 0.8,
+              alignItems: "flex-end",
+            }}
+          >
+            <Button
+              text="Forgot password?"
+              buttonStyle={{
+                width: Viewport.width * 0.35,
+                alignItems: "flex-end",
+              }}
+              textStyle={{
+                color: Colors.secondaryColor1,
+                fontSize: FontSizes.small,
+              }}
+            />
+          </View>
+          <Button
+            text="Sign in"
+            buttonStyle={{
+              width: Viewport.width * 0.8,
+              height: Viewport.height * 0.06,
+              borderRadius: 30,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: Colors.primaryColor1,
+            }}
+            textStyle={{
+              color: Colors.secondaryColor1,
+              fontSize: FontSizes.small,
+            }}
+          />
+          <View>
+            <Button
+              text="Don't have an account?"
+              text2="Sign up"
+              buttonStyle={{
+                width: Viewport.width * 0.8,
+                height: Viewport.height * 0.04,
+                justifyContent: "space-between",
+                flexDirection: "row",
+                backgroundColor: "transparent",
+                borderColor: Colors.secondaryColor1,
+                borderBottomWidth: 2,
+              }}
+              textStyle={{
+                color: Colors.secondaryColor1,
+                fontSize: FontSizes.small,
+              }}
+            />
+          </View>
+        </View>
+      </LinearGradientBG>
+    </KeyboardAwareScrollView>
   );
 }
