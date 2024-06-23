@@ -19,6 +19,8 @@ export const InputField: React.FC<InputFieldProps> = ({
   autoCapitalize,
   style,
   floatingPlaceHolder,
+  floatingDarkColor,
+  floatingLightColor,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(!!value);
@@ -46,7 +48,17 @@ export const InputField: React.FC<InputFieldProps> = ({
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
+  let placeholderTextColor;
 
+  if (floatingPlaceHolder) {
+    placeholderTextColor = "transparent";
+  } else if (floatingLightColor) {
+    placeholderTextColor = Colors.secondaryColor2;
+  } else if (floatingDarkColor) {
+    placeholderTextColor = Colors.secondaryColor4;
+  } else {
+    placeholderTextColor = undefined;
+  }
   return (
     <View
       style={{
@@ -58,13 +70,24 @@ export const InputField: React.FC<InputFieldProps> = ({
       {floatingPlaceHolder && (
         <Animated.Text
           style={[
-            {
+            floatingLightColor && {
               position: "absolute",
               left: hasValue || isFocused ? 0 : 10,
               color:
                 hasValue || isFocused
                   ? Colors.secondaryColor1
                   : Colors.secondaryColor2,
+              fontSize:
+                hasValue || isFocused ? FontSizes.tiny : FontSizes.small,
+              bottom: 30,
+            },
+            floatingDarkColor && {
+              position: "absolute",
+              left: hasValue || isFocused ? 0 : 10,
+              color:
+                hasValue || isFocused
+                  ? Colors.secondaryColor3
+                  : Colors.secondaryColor4,
               fontSize:
                 hasValue || isFocused ? FontSizes.tiny : FontSizes.small,
               bottom: 30,
@@ -100,19 +123,26 @@ export const InputField: React.FC<InputFieldProps> = ({
         style={[
           style,
           { color: Colors.secondaryColor1, fontSize: FontSizes.small },
-          floatingPlaceHolder && {
-            borderBottomWidth: 2,
-            borderColor:
-              hasValue || isFocused
-                ? Colors.secondaryColor1
-                : Colors.secondaryColor2,
-          },
+          floatingPlaceHolder &&
+            floatingLightColor && {
+              borderBottomWidth: 2,
+              borderColor:
+                hasValue || isFocused
+                  ? Colors.secondaryColor1
+                  : Colors.secondaryColor2,
+            },
+          floatingPlaceHolder &&
+            floatingDarkColor && {
+              borderBottomWidth: 2,
+              borderColor:
+                hasValue || isFocused
+                  ? Colors.secondaryColor3
+                  : Colors.secondaryColor4,
+            },
         ]}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        placeholderTextColor={
-          floatingPlaceHolder ? "transparent" : Colors.secondaryColor2
-        }
+        placeholderTextColor={placeholderTextColor}
         secureTextEntry={secureTextEntry && !showPassword}
       />
       {secureTextEntry && (
@@ -120,15 +150,28 @@ export const InputField: React.FC<InputFieldProps> = ({
           style={{ position: "absolute", left: Viewport.width * 0.7 }}
           onPress={togglePasswordVisibility}
         >
-          <Entypo
-            name={showPassword ? "eye-with-line" : "eye"}
-            size={24}
-            color={
-              hasValue || isFocused
-                ? Colors.secondaryColor1
-                : Colors.secondaryColor2
-            }
-          />
+          {floatingLightColor && (
+            <Entypo
+              name={showPassword ? "eye-with-line" : "eye"}
+              size={24}
+              color={
+                hasValue || isFocused
+                  ? Colors.secondaryColor1
+                  : Colors.secondaryColor2
+              }
+            />
+          )}
+          {floatingDarkColor && (
+            <Entypo
+              name={showPassword ? "eye-with-line" : "eye"}
+              size={24}
+              color={
+                hasValue || isFocused
+                  ? Colors.secondaryColor3
+                  : Colors.secondaryColor4
+              }
+            />
+          )}
         </TouchableOpacity>
       )}
     </View>

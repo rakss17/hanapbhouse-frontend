@@ -8,4 +8,6 @@ export interface InputFieldProps {
   autoCapitalize?: any;
   style?: StyleProp<ViewStyle>;
   floatingPlaceHolder?: boolean;
+  floatingLightColor?: boolean;
+  floatingDarkColor?: boolean;
 }
