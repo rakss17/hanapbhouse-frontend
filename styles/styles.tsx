@@ -7,13 +7,13 @@ export const Viewport = {
 };
 export const Colors = {
   primaryColor1: "#BC723C",
-  primaryColor2: "#D9D9D9",
-  primaryColor3: "#AEAEAE",
-  primaryColor4: "#E8A51C",
+  primaryColor2: "#F1F0F0",
+  primaryColor3: "#FFA800",
+  primaryColor4: "#540EEB",
   secondaryColor1: "#FFFFFF",
   secondaryColor2: "#A7A7A7",
   secondaryColor3: "black",
-  secondaryColor4: "#616161",
+  secondaryColor4: "#646464",
   errorColor: "red",
 };
 export const FontSizes = {

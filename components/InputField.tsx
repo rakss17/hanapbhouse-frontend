@@ -18,6 +18,8 @@ export const InputField: React.FC<InputFieldProps> = ({
   onChangeText,
   autoCapitalize,
   style,
+  lightColor,
+  darkColor,
   floatingPlaceHolder,
   floatingDarkColor,
   floatingLightColor,
@@ -122,7 +124,14 @@ export const InputField: React.FC<InputFieldProps> = ({
         autoCapitalize={autoCapitalize}
         style={[
           style,
-          { color: Colors.secondaryColor1, fontSize: FontSizes.small },
+          lightColor && {
+            color: Colors.secondaryColor1,
+            fontSize: FontSizes.small,
+          },
+          darkColor && {
+            color: Colors.secondaryColor3,
+            fontSize: FontSizes.small,
+          },
           floatingPlaceHolder &&
             floatingLightColor && {
               borderBottomWidth: 2,

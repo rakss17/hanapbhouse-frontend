@@ -7,6 +7,8 @@ export interface InputFieldProps {
   onChangeText: (text: string) => void;
   autoCapitalize?: any;
   style?: StyleProp<ViewStyle>;
+  lightColor?: boolean;
+  darkColor?: boolean;
   floatingPlaceHolder?: boolean;
   floatingLightColor?: boolean;
   floatingDarkColor?: boolean;

@@ -97,6 +97,8 @@ export default function Signin() {
               });
             }}
             floatingPlaceHolder
+            floatingLightColor
+            lightColor
           />
           <InputField
             value={data.password}
@@ -114,6 +116,8 @@ export default function Signin() {
               });
             }}
             floatingPlaceHolder
+            floatingLightColor
+            lightColor
             secureTextEntry
           />
         </View>
