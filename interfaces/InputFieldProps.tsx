@@ -12,4 +12,5 @@ export interface InputFieldProps {
   floatingPlaceHolder?: boolean;
   floatingLightColor?: boolean;
   floatingDarkColor?: boolean;
+  keyboardType?: any;
 }

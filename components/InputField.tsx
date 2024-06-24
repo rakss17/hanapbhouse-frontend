@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Animated,
   Easing,
-  BackHandler,
 } from "react-native";
 import { InputFieldProps } from "@/interfaces/InputFieldProps";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -23,6 +22,7 @@ export const InputField: React.FC<InputFieldProps> = ({
   floatingPlaceHolder,
   floatingDarkColor,
   floatingLightColor,
+  keyboardType,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(!!value);
@@ -122,6 +122,7 @@ export const InputField: React.FC<InputFieldProps> = ({
         }}
         placeholder={floatingPlaceHolder ? "" : placeholder}
         autoCapitalize={autoCapitalize}
+        keyboardType={keyboardType}
         style={[
           style,
           lightColor && {
