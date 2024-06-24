@@ -91,6 +91,15 @@ export const InputField: React.FC<InputFieldProps> = ({
                 hasValue || isFocused ? FontSizes.tiny : FontSizes.small,
               bottom: 30,
             },
+            colors === "error" && {
+              position: "absolute",
+              left: hasValue || isFocused ? 0 : 10,
+              color:
+                hasValue || isFocused ? Colors.errorColor : Colors.errorColor,
+              fontSize:
+                hasValue || isFocused ? FontSizes.tiny : FontSizes.small,
+              bottom: 30,
+            },
             {
               transform: [
                 {
@@ -130,6 +139,7 @@ export const InputField: React.FC<InputFieldProps> = ({
             color: Colors.secondaryColor3,
             fontSize: FontSizes.small,
           },
+
           floatingPlaceHolder &&
             colors === "light" && {
               borderBottomWidth: 2,
@@ -145,6 +155,12 @@ export const InputField: React.FC<InputFieldProps> = ({
                 hasValue || isFocused
                   ? Colors.secondaryColor3
                   : Colors.secondaryColor4,
+            },
+          floatingPlaceHolder &&
+            colors === "error" && {
+              borderBottomWidth: 2,
+              borderColor:
+                hasValue || isFocused ? Colors.errorColor : Colors.errorColor,
             },
         ]}
         onFocus={handleFocus}
@@ -176,6 +192,15 @@ export const InputField: React.FC<InputFieldProps> = ({
                 hasValue || isFocused
                   ? Colors.secondaryColor3
                   : Colors.secondaryColor4
+              }
+            />
+          )}
+          {colors === "error" && (
+            <Entypo
+              name={showPassword ? "eye-with-line" : "eye"}
+              size={24}
+              color={
+                hasValue || isFocused ? Colors.errorColor : Colors.errorColor
               }
             />
           )}

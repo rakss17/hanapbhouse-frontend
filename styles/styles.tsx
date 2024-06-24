@@ -14,7 +14,7 @@ export const Colors = {
   secondaryColor2: "#A7A7A7",
   secondaryColor3: "black",
   secondaryColor4: "#646464",
-  errorColor: "red",
+  errorColor: "#E80101",
 };
 export const FontSizes = {
   tiny: Viewport.width * 0.03,
