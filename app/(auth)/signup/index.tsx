@@ -89,7 +89,7 @@ export default function SignUp() {
             <InputField
               value={data.first_name}
               placeholder="First name"
-              autoCapitalize="none"
+              autoCapitalize="words"
               style={{
                 width: Viewport.width * 0.38,
                 height: Viewport.height * 0.05,
@@ -108,7 +108,7 @@ export default function SignUp() {
             <InputField
               value={data.last_name}
               placeholder="Last name"
-              autoCapitalize="none"
+              autoCapitalize="words"
               style={{
                 width: Viewport.width * 0.38,
                 height: Viewport.height * 0.05,
@@ -129,38 +129,55 @@ export default function SignUp() {
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
             <RNPickerSelect
+              value={data.gender}
               placeholder={{
                 label: "Gender",
                 value: null,
-                color: Colors.secondaryColor4,
               }}
               style={{
-                inputAndroid: {
-                  borderBottomWidth: 2,
-                  borderColor: "black",
-                  backgroundColor: "transparent",
+                placeholder: {
+                  color: Colors.secondaryColor4,
+                  right: 8,
+                  bottom: 8,
+                },
+                viewContainer: {
                   width: Viewport.width * 0.38,
                   height: Viewport.height * 0.05,
+                  borderColor: Colors.secondaryColor4,
+                  borderBottomWidth: 2,
                 },
-
+                inputAndroid: {
+                  width: Viewport.width * 0.38,
+                  height: Viewport.height * 0.05,
+                  color: Colors.secondaryColor3,
+                  right: 8,
+                  bottom: 8,
+                },
                 inputIOS: {
                   width: Viewport.width * 0.38,
                   height: Viewport.height * 0.02,
-                  backgroundColor: "transparent",
-                  borderBottomWidth: 2,
-                  borderColor: "black",
+                  color: Colors.secondaryColor3,
+                  right: 8,
+                  bottom: 8,
                 },
               }}
-              onValueChange={(value) => console.log(value)}
+              onValueChange={(value) =>
+                setData({
+                  ...data,
+                  gender: value,
+                })
+              }
               items={[
                 { key: "Male", label: "Male", value: "Male" },
                 { key: "Female", label: "Female", value: "Female" },
               ]}
             />
+
             <InputField
               value={data.contact_number}
               placeholder="Mobile number"
               autoCapitalize="none"
+              keyboardType="numeric"
               style={{
                 width: Viewport.width * 0.38,
                 height: Viewport.height * 0.05,
@@ -184,6 +201,7 @@ export default function SignUp() {
               value={data.email}
               placeholder="Email"
               autoCapitalize="none"
+              keyboardType="email-address"
               style={{
                 width: Viewport.width * 0.8,
                 height: Viewport.height * 0.05,
@@ -293,6 +311,9 @@ export default function SignUp() {
             textStyle={{
               color: Colors.secondaryColor1,
               fontSize: FontSizes.small,
+            }}
+            onPress={() => {
+              console.log("data", data);
             }}
           />
 
