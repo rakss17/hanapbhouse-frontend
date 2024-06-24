@@ -1,16 +1,15 @@
-import { ViewStyle, StyleProp } from "react-native";
+import { ViewStyle, StyleProp, KeyboardTypeOptions } from "react-native";
 
 export interface InputFieldProps {
   value: string;
   placeholder: string;
   secureTextEntry?: boolean;
   onChangeText: (text: string) => void;
-  autoCapitalize?: any;
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
   style?: StyleProp<ViewStyle>;
-  lightColor?: boolean;
-  darkColor?: boolean;
+
   floatingPlaceHolder?: boolean;
-  floatingLightColor?: boolean;
-  floatingDarkColor?: boolean;
-  keyboardType?: any;
+
+  keyboardType?: KeyboardTypeOptions;
+  colors?: "dark" | "light" | "error";
 }

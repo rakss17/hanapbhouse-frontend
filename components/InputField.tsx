@@ -17,12 +17,9 @@ export const InputField: React.FC<InputFieldProps> = ({
   onChangeText,
   autoCapitalize,
   style,
-  lightColor,
-  darkColor,
   floatingPlaceHolder,
-  floatingDarkColor,
-  floatingLightColor,
   keyboardType,
+  colors,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(!!value);
@@ -54,9 +51,9 @@ export const InputField: React.FC<InputFieldProps> = ({
 
   if (floatingPlaceHolder) {
     placeholderTextColor = "transparent";
-  } else if (floatingLightColor) {
+  } else if (colors === "light") {
     placeholderTextColor = Colors.secondaryColor2;
-  } else if (floatingDarkColor) {
+  } else if (colors === "dark") {
     placeholderTextColor = Colors.secondaryColor4;
   } else {
     placeholderTextColor = undefined;
@@ -72,7 +69,7 @@ export const InputField: React.FC<InputFieldProps> = ({
       {floatingPlaceHolder && (
         <Animated.Text
           style={[
-            floatingLightColor && {
+            colors === "light" && {
               position: "absolute",
               left: hasValue || isFocused ? 0 : 10,
               color:
@@ -83,7 +80,7 @@ export const InputField: React.FC<InputFieldProps> = ({
                 hasValue || isFocused ? FontSizes.tiny : FontSizes.small,
               bottom: 30,
             },
-            floatingDarkColor && {
+            colors === "dark" && {
               position: "absolute",
               left: hasValue || isFocused ? 0 : 10,
               color:
@@ -125,16 +122,16 @@ export const InputField: React.FC<InputFieldProps> = ({
         keyboardType={keyboardType}
         style={[
           style,
-          lightColor && {
+          colors === "light" && {
             color: Colors.secondaryColor1,
             fontSize: FontSizes.small,
           },
-          darkColor && {
+          colors === "dark" && {
             color: Colors.secondaryColor3,
             fontSize: FontSizes.small,
           },
           floatingPlaceHolder &&
-            floatingLightColor && {
+            colors === "light" && {
               borderBottomWidth: 2,
               borderColor:
                 hasValue || isFocused
@@ -142,7 +139,7 @@ export const InputField: React.FC<InputFieldProps> = ({
                   : Colors.secondaryColor2,
             },
           floatingPlaceHolder &&
-            floatingDarkColor && {
+            colors === "dark" && {
               borderBottomWidth: 2,
               borderColor:
                 hasValue || isFocused
@@ -160,7 +157,7 @@ export const InputField: React.FC<InputFieldProps> = ({
           style={{ position: "absolute", left: Viewport.width * 0.7 }}
           onPress={togglePasswordVisibility}
         >
-          {floatingLightColor && (
+          {colors === "light" && (
             <Entypo
               name={showPassword ? "eye-with-line" : "eye"}
               size={24}
@@ -171,7 +168,7 @@ export const InputField: React.FC<InputFieldProps> = ({
               }
             />
           )}
-          {floatingDarkColor && (
+          {colors === "dark" && (
             <Entypo
               name={showPassword ? "eye-with-line" : "eye"}
               size={24}
