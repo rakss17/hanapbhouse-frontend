@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Animated,
   Easing,
-  BackHandler,
 } from "react-native";
 import { InputFieldProps } from "@/interfaces/InputFieldProps";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -19,6 +18,8 @@ export const InputField: React.FC<InputFieldProps> = ({
   autoCapitalize,
   style,
   floatingPlaceHolder,
+  keyboardType,
+  colors,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(!!value);
@@ -46,7 +47,17 @@ export const InputField: React.FC<InputFieldProps> = ({
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
+  let placeholderTextColor;
 
+  if (floatingPlaceHolder) {
+    placeholderTextColor = "transparent";
+  } else if (colors === "light") {
+    placeholderTextColor = Colors.secondaryColor2;
+  } else if (colors === "dark") {
+    placeholderTextColor = Colors.secondaryColor4;
+  } else {
+    placeholderTextColor = undefined;
+  }
   return (
     <View
       style={{
@@ -58,13 +69,33 @@ export const InputField: React.FC<InputFieldProps> = ({
       {floatingPlaceHolder && (
         <Animated.Text
           style={[
-            {
+            colors === "light" && {
               position: "absolute",
               left: hasValue || isFocused ? 0 : 10,
               color:
                 hasValue || isFocused
                   ? Colors.secondaryColor1
                   : Colors.secondaryColor2,
+              fontSize:
+                hasValue || isFocused ? FontSizes.tiny : FontSizes.small,
+              bottom: 30,
+            },
+            colors === "dark" && {
+              position: "absolute",
+              left: hasValue || isFocused ? 0 : 10,
+              color:
+                hasValue || isFocused
+                  ? Colors.secondaryColor3
+                  : Colors.secondaryColor4,
+              fontSize:
+                hasValue || isFocused ? FontSizes.tiny : FontSizes.small,
+              bottom: 30,
+            },
+            colors === "error" && {
+              position: "absolute",
+              left: hasValue || isFocused ? 0 : 10,
+              color:
+                hasValue || isFocused ? Colors.errorColor : Colors.errorColor,
               fontSize:
                 hasValue || isFocused ? FontSizes.tiny : FontSizes.small,
               bottom: 30,
@@ -97,22 +128,44 @@ export const InputField: React.FC<InputFieldProps> = ({
         }}
         placeholder={floatingPlaceHolder ? "" : placeholder}
         autoCapitalize={autoCapitalize}
+        keyboardType={keyboardType}
         style={[
           style,
-          { color: Colors.secondaryColor1, fontSize: FontSizes.small },
-          floatingPlaceHolder && {
-            borderBottomWidth: 2,
-            borderColor:
-              hasValue || isFocused
-                ? Colors.secondaryColor1
-                : Colors.secondaryColor2,
+          colors === "light" && {
+            color: Colors.secondaryColor1,
+            fontSize: FontSizes.small,
           },
+          colors === "dark" && {
+            color: Colors.secondaryColor3,
+            fontSize: FontSizes.small,
+          },
+
+          floatingPlaceHolder &&
+            colors === "light" && {
+              borderBottomWidth: 2,
+              borderColor:
+                hasValue || isFocused
+                  ? Colors.secondaryColor1
+                  : Colors.secondaryColor2,
+            },
+          floatingPlaceHolder &&
+            colors === "dark" && {
+              borderBottomWidth: 2,
+              borderColor:
+                hasValue || isFocused
+                  ? Colors.secondaryColor3
+                  : Colors.secondaryColor4,
+            },
+          floatingPlaceHolder &&
+            colors === "error" && {
+              borderBottomWidth: 2,
+              borderColor:
+                hasValue || isFocused ? Colors.errorColor : Colors.errorColor,
+            },
         ]}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        placeholderTextColor={
-          floatingPlaceHolder ? "transparent" : Colors.secondaryColor2
-        }
+        placeholderTextColor={placeholderTextColor}
         secureTextEntry={secureTextEntry && !showPassword}
       />
       {secureTextEntry && (
@@ -120,15 +173,37 @@ export const InputField: React.FC<InputFieldProps> = ({
           style={{ position: "absolute", left: Viewport.width * 0.7 }}
           onPress={togglePasswordVisibility}
         >
-          <Entypo
-            name={showPassword ? "eye-with-line" : "eye"}
-            size={24}
-            color={
-              hasValue || isFocused
-                ? Colors.secondaryColor1
-                : Colors.secondaryColor2
-            }
-          />
+          {colors === "light" && (
+            <Entypo
+              name={showPassword ? "eye-with-line" : "eye"}
+              size={24}
+              color={
+                hasValue || isFocused
+                  ? Colors.secondaryColor1
+                  : Colors.secondaryColor2
+              }
+            />
+          )}
+          {colors === "dark" && (
+            <Entypo
+              name={showPassword ? "eye-with-line" : "eye"}
+              size={24}
+              color={
+                hasValue || isFocused
+                  ? Colors.secondaryColor3
+                  : Colors.secondaryColor4
+              }
+            />
+          )}
+          {colors === "error" && (
+            <Entypo
+              name={showPassword ? "eye-with-line" : "eye"}
+              size={24}
+              color={
+                hasValue || isFocused ? Colors.errorColor : Colors.errorColor
+              }
+            />
+          )}
         </TouchableOpacity>
       )}
     </View>

@@ -1,6 +1,7 @@
 import { Text, View, Image } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useState } from "react";
+import { Link } from "expo-router";
 import { LinearGradientBG } from "@/components/LinearGradientBG";
 import {
   customizeFont,
@@ -96,6 +97,7 @@ export default function Signin() {
               });
             }}
             floatingPlaceHolder
+            colors="light"
           />
           <InputField
             value={data.password}
@@ -113,6 +115,7 @@ export default function Signin() {
               });
             }}
             floatingPlaceHolder
+            colors="light"
             secureTextEntry
           />
         </View>
@@ -157,7 +160,8 @@ export default function Signin() {
               fontSize: FontSizes.small,
             }}
           />
-          <View>
+
+          <Link href="/(auth)/signup" asChild>
             <Button
               text="Don't have an account?"
               text2="Sign up"
@@ -175,7 +179,7 @@ export default function Signin() {
                 fontSize: FontSizes.small,
               }}
             />
-          </View>
+          </Link>
         </View>
       </LinearGradientBG>
     </KeyboardAwareScrollView>
