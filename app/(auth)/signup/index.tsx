@@ -72,7 +72,9 @@ export default function SignUp() {
     const errorArray = [validationErrors];
 
     setErrorMessages(errorArray);
-    console.log("data", data);
+    if (Object.keys(validationErrors).length === 0) {
+      console.log("data", data);
+    }
   };
   return (
     <KeyboardAwareScrollView
@@ -461,7 +463,7 @@ export default function SignUp() {
           >
             <View
               style={{
-                height: errorMessages[0]?.password
+                height: !errorMessages[0]?.passDoesNotMatch
                   ? Viewport.height * 0.075
                   : Viewport.height * 0.06,
               }}
@@ -501,15 +503,24 @@ export default function SignUp() {
                     : "dark"
                 }
               />
-              {errorMessages[0]?.password && (
+              {!errorMessages[0]?.passDoesNotMatch && (
                 <Text
                   style={{
-                    color: Colors.errorColor,
+                    color:
+                      errorMessages[0]?.password || errorMessages[0]?.all
+                        ? Colors.errorColor
+                        : Colors.secondaryColor3,
                     fontSize: FontSizes.tiny,
                     textAlign: "left",
+                    fontWeight:
+                      errorMessages[0]?.password || errorMessages[0]?.all
+                        ? "normal"
+                        : "bold",
                   }}
                 >
-                  {errorMessages[0]?.password}
+                  {passwordRegex.test(data.password)
+                    ? ""
+                    : "Please include at least 8 characters long and include at least one uppercase letter and one number."}
                 </Text>
               )}
               {errorMessages[0]?.passDoesNotMatch && (

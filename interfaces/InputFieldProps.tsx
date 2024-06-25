@@ -7,9 +7,7 @@ export interface InputFieldProps {
   onChangeText: (text: string) => void;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   style?: StyleProp<ViewStyle>;
-
   floatingPlaceHolder?: boolean;
-
   keyboardType?: KeyboardTypeOptions;
   colors?: "dark" | "light" | "error";
 }
