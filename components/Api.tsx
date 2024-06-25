@@ -1,0 +1,89 @@
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { SignupDataProps } from "@/interfaces/SignupDataProps";
+
+const debug = true;
+
+export let serverSideUrl: any;
+export let serverSideMediaUrl: any;
+
+if (debug) {
+  serverSideUrl = "http://192.168.1.17:8000/";
+  serverSideMediaUrl = "http://192.168.1.17:8000/media/";
+}
+
+const instance = axios.create({
+  baseURL: serverSideUrl,
+});
+
+export function parseError(error: any) {
+  if (error.response && error.response.data) {
+    return JSON.stringify(error.response.data)
+      .replaceAll(/[{}()"]/g, " ")
+      .replaceAll(/,/g, "\n")
+      .replaceAll("[", "")
+      .replaceAll("]", "")
+      .replaceAll(".", "")
+      .replaceAll(/"/g, "")
+      .replaceAll("non_field_errors", "")
+      .trim();
+  }
+  return "Unable to reach server";
+}
+
+export async function getAccessToken() {
+  const accessToken = await AsyncStorage.getItem("access_token");
+  return accessToken;
+}
+
+export async function getRefreshToken() {
+  const refreshToken = await AsyncStorage.getItem("refresh_token");
+  return refreshToken;
+}
+
+export async function setAccessToken(access: string) {
+  await AsyncStorage.setItem("access_token", access);
+  return true;
+}
+
+export async function setRefreshToken(refresh: string) {
+  await AsyncStorage.setItem("refresh_token", refresh);
+  return true;
+}
+
+export async function SignupAPI(
+  data: SignupDataProps,
+  toast: any,
+  setIsLoading: any,
+  router: any,
+  setIsSuccess: any
+) {
+  setIsLoading(true);
+
+  try {
+    await instance.post("api/v1/accounts/users/", data).then(() => {
+      setIsLoading(false);
+      setIsSuccess(true);
+      toast.show("Success! Check your email to activate your account.", {
+        type: "success",
+        placement: "top",
+        duration: 6000,
+        animationType: "slide-in",
+      });
+      setTimeout(() => {
+        router.push("/(auth)/(signin)");
+        setIsSuccess(false);
+      }, 6000);
+    });
+  } catch (error: any) {
+    setIsLoading(false);
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
