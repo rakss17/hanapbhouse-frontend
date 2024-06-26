@@ -12,13 +12,25 @@ import {
 } from "@/styles/styles";
 import { InputField } from "@/components/InputField";
 import { Button } from "@/components/Button";
+import { useToast } from "react-native-toast-notifications";
+import { useRouter } from "expo-router";
+import { SigninAPI } from "@/components/Api";
 
 export default function Signin() {
   const fontLoaded = customizeFont();
+  const toast = useToast();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [data, setData] = useState({
     username: "",
     password: "",
   });
+
+  const handleSignin = () => {
+    SigninAPI(data, toast, setIsLoading, router, setIsSuccess, setIsError);
+  };
 
   return (
     <KeyboardAwareScrollView
@@ -97,7 +109,7 @@ export default function Signin() {
               });
             }}
             floatingPlaceHolder
-            colors="light"
+            colors={isError ? ["error", "light-error"] : ["light"]}
           />
           <InputField
             value={data.password}
@@ -115,7 +127,7 @@ export default function Signin() {
               });
             }}
             floatingPlaceHolder
-            colors="light"
+            colors={isError ? ["error", "light-error"] : ["light"]}
             secureTextEntry
           />
         </View>
@@ -153,12 +165,21 @@ export default function Signin() {
               borderRadius: 30,
               justifyContent: "center",
               alignItems: "center",
-              backgroundColor: Colors.primaryColor1,
+              backgroundColor:
+                isLoading || isSuccess
+                  ? Colors.secondaryColor4
+                  : Colors.primaryColor1,
             }}
             textStyle={{
               color: Colors.secondaryColor1,
               fontSize: FontSizes.small,
             }}
+            onPress={handleSignin}
+            isLoading={isLoading}
+            disabled={isLoading || isSuccess ? true : false}
+            loadingText="Signing in"
+            loadingColor="white"
+            loadingSize={25}
           />
 
           <Link href="/(auth)/signup" asChild>

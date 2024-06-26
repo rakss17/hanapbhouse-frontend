@@ -1,7 +1,6 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-import { SignupDataProps } from "@/interfaces/SignupDataProps";
+import { SigninDataProps, SignupDataProps } from "@/interfaces/AuthDataProps";
 
 const debug = true;
 
@@ -15,6 +14,7 @@ if (debug) {
 
 const instance = axios.create({
   baseURL: serverSideUrl,
+  timeout: 5000,
 });
 
 export function parseError(error: any) {
@@ -85,5 +85,62 @@ export async function SignupAPI(
       duration: 6000,
       animationType: "slide-in",
     });
+  }
+}
+
+export async function SigninAPI(
+  data: SigninDataProps,
+  toast: any,
+  setIsLoading: any,
+  router: any,
+  setIsSuccess: any,
+  setIsError: any
+) {
+  setIsLoading(true);
+
+  try {
+    await instance
+      .post("api/v1/accounts/jwt/create/", data)
+      .then((response) => {
+        setAccessToken(response.data.access);
+        setRefreshToken(response.data.refresh);
+        setIsLoading(false);
+        setIsSuccess(true);
+        setIsError(false);
+        toast.show("Successfully login!", {
+          type: "success",
+          placement: "top",
+          duration: 6000,
+          animationType: "slide-in",
+        });
+        setTimeout(() => {
+          router.push("/(tabs)");
+          setIsSuccess(false);
+        }, 6000);
+      });
+  } catch (error: any) {
+    setIsLoading(false);
+    let error_message = parseError(error);
+    if (
+      error_message.includes(
+        "No active account found with the given credentials"
+      ) ||
+      error_message.includes("This field may not be blank")
+    ) {
+      setIsError(true);
+      toast.show("Oops! Incorrect username or password. Please try again.", {
+        type: "danger",
+        placement: "top",
+        duration: 6000,
+        animationType: "slide-in",
+      });
+    } else {
+      toast.show(error_message, {
+        type: "danger",
+        placement: "top",
+        duration: 6000,
+        animationType: "slide-in",
+      });
+    }
   }
 }

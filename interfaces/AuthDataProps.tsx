@@ -8,3 +8,8 @@ export interface SignupDataProps {
   password: string;
   confirm_password: string;
 }
+
+export interface SigninDataProps {
+  username: string;
+  password: string;
+}
