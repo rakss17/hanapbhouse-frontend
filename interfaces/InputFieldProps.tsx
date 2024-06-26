@@ -9,5 +9,5 @@ export interface InputFieldProps {
   style?: StyleProp<ViewStyle>;
   floatingPlaceHolder?: boolean;
   keyboardType?: KeyboardTypeOptions;
-  colors?: "dark" | "light" | "error";
+  colors?: ("dark" | "light" | "error" | "light-error" | "dark-error")[];
 }
