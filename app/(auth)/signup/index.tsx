@@ -47,6 +47,12 @@ export default function SignUp() {
 
     if (allFieldsBlank) {
       validationErrors.all = "Please fill out all the fields.";
+      toast.show("Please fill out all the fields", {
+        type: "danger",
+        placement: "top",
+        duration: 6000,
+        animationType: "slide-in",
+      });
     } else {
       if (!data.first_name) {
         validationErrors.first_name = "Please input first name.";
@@ -139,17 +145,7 @@ export default function SignUp() {
             </>
           )}
         </View>
-        {errorMessages[0]?.all && (
-          <Text
-            style={{
-              color: Colors.errorColor,
-              fontSize: FontSizes.small,
-              textAlign: "center",
-            }}
-          >
-            {errorMessages[0]?.all}
-          </Text>
-        )}
+
         <View
           style={{
             width: Viewport.width * 0.8,
@@ -189,8 +185,8 @@ export default function SignUp() {
                 floatingPlaceHolder
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.first_name
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.first_name && (
@@ -235,8 +231,8 @@ export default function SignUp() {
                 floatingPlaceHolder
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.last_name
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.last_name && (
@@ -354,8 +350,8 @@ export default function SignUp() {
                 floatingPlaceHolder
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.contact_number
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.contact_number && (
@@ -400,8 +396,8 @@ export default function SignUp() {
                 floatingPlaceHolder
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.email
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.email && (
@@ -449,8 +445,8 @@ export default function SignUp() {
                 floatingPlaceHolder
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.username
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.username && (
@@ -507,8 +503,8 @@ export default function SignUp() {
                   errorMessages[0]?.all ||
                   errorMessages[0]?.password ||
                   errorMessages[0]?.passDoesNotMatch
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {!errorMessages[0]?.passDoesNotMatch && (
@@ -572,8 +568,8 @@ export default function SignUp() {
                 secureTextEntry
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.passDoesNotMatch && (
