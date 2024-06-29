@@ -1,6 +1,10 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { SigninDataProps, SignupDataProps } from "@/interfaces/AuthDataProps";
+import {
+  ActivationProps,
+  SigninDataProps,
+  SignupDataProps,
+} from "@/interfaces/AuthDataProps";
 
 const debug = true;
 
@@ -86,6 +90,47 @@ export async function SignupAPI(
       animationType: "slide-in",
     });
   }
+}
+
+export function UserActivation(
+  activation: ActivationProps,
+  toast: any,
+  router: any,
+  setIsLoading: any
+) {
+  instance
+    .post("api/v1/accounts/users/activation/", activation)
+    .then(() => {
+      setIsLoading(false);
+      toast.show("Activation Completed! You can now sign in to your account.", {
+        type: "success",
+        placement: "top",
+        duration: 6000,
+        animationType: "slide-in",
+      });
+      setTimeout(() => {
+        router.push("/(auth)/(signin)");
+      }, 1000);
+    })
+    .catch((error: any) => {
+      setIsLoading(false);
+      let error_message = parseError(error);
+      if (error_message.includes("Stale token for given user")) {
+        toast.show("Account is already activated.", {
+          type: "warning",
+          placement: "top",
+          duration: 6000,
+          animationType: "slide-in",
+        });
+      } else {
+        toast.show("Activation unsuccessful. Please contact support.", {
+          type: "warning",
+          placement: "top",
+          duration: 6000,
+          animationType: "slide-in",
+        });
+      }
+    });
 }
 
 export async function SigninAPI(

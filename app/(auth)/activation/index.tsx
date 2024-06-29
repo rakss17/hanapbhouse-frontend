@@ -1,6 +1,7 @@
 import { View, Text, ActivityIndicator } from "react-native";
-import { useEffect } from "react";
-import { Link, useRouter, useGlobalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import { useRouter, useGlobalSearchParams } from "expo-router";
+import { useToast } from "react-native-toast-notifications";
 import {
   Colors,
   FontSizes,
@@ -10,19 +11,37 @@ import {
 } from "@/styles/styles";
 import { CircleShape } from "@/components/CircleShape";
 import { StatusBar } from "expo-status-bar";
+import { UserActivation } from "@/components/Api";
 
 export default function Activation() {
   const fontLoaded = customizeFont();
+  const [isLoading, setIsLoading] = useState(true);
+  const [activation, setActivation] = useState({
+    uid: "",
+    token: "",
+  });
+  const toast = useToast();
   const router = useRouter();
   const params = useGlobalSearchParams();
-  const slug3 = params.slug3;
-  const slug4 = params.slug4;
+  const uid = params.slug3;
+  const token = params.slug4;
 
   useEffect(() => {
-    console.log("params", params);
-    console.log("slug3", slug3);
-    console.log("slug4", slug4);
-  }, [params, slug3, slug4]);
+    if (uid && token) {
+      setActivation({
+        ...activation,
+        uid: String(uid),
+        token: String(token),
+      });
+    }
+  }, [uid, token]);
+
+  useEffect(() => {
+    if (activation && toast) {
+      UserActivation(activation, toast, router, setIsLoading);
+    }
+  }, [activation]);
+
   return (
     <>
       <StatusBar style="dark" />
@@ -56,7 +75,11 @@ export default function Activation() {
             >
               Activating your account. Please wait.
             </Text>
-            <ActivityIndicator size={100} color={Colors.secondaryColor4} />
+            <ActivityIndicator
+              animating={isLoading}
+              size={100}
+              color={Colors.secondaryColor4}
+            />
             <Text
               style={{
                 fontFamily: "InriaSans",
@@ -65,7 +88,7 @@ export default function Activation() {
                 textAlign: "center",
               }}
             >
-              Activating with UID: {slug3} Token: {slug4}
+              Activating with UID: {uid} Token: {token}
             </Text>
           </>
         )}

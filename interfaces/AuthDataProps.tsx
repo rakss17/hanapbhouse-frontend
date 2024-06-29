@@ -13,3 +13,8 @@ export interface SigninDataProps {
   username: string;
   password: string;
 }
+
+export interface ActivationProps {
+  uid: string;
+  token: string;
+}
