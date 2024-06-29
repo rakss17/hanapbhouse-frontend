@@ -65,16 +65,16 @@ export async function SignupAPI(
     await instance.post("api/v1/accounts/users/", data).then(() => {
       setIsLoading(false);
       setIsSuccess(true);
-      toast.show("Success! Check your email to activate your account.", {
+      toast.show("Success! Please check your email to activate your account.", {
         type: "success",
         placement: "top",
         duration: 6000,
         animationType: "slide-in",
       });
       setTimeout(() => {
-        router.push("/(auth)/(signin)");
+        router.push("/(auth)/signup/success");
         setIsSuccess(false);
-      }, 6000);
+      }, 1000);
     });
   } catch (error: any) {
     setIsLoading(false);
@@ -116,7 +116,7 @@ export async function SigninAPI(
         setTimeout(() => {
           router.push("/(tabs)");
           setIsSuccess(false);
-        }, 6000);
+        }, 1000);
       });
   } catch (error: any) {
     setIsLoading(false);

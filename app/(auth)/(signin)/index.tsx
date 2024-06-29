@@ -1,7 +1,7 @@
 import { Text, View, Image } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useState } from "react";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { LinearGradientBG } from "@/components/LinearGradientBG";
 import {
   customizeFont,
@@ -13,7 +13,6 @@ import {
 import { InputField } from "@/components/InputField";
 import { Button } from "@/components/Button";
 import { useToast } from "react-native-toast-notifications";
-import { useRouter } from "expo-router";
 import { SigninAPI } from "@/components/Api";
 
 export default function Signin() {
