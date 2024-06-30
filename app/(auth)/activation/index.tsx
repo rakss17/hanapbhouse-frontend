@@ -11,7 +11,7 @@ import {
 } from "@/styles/styles";
 import { CircleShape } from "@/components/CircleShape";
 import { StatusBar } from "expo-status-bar";
-import { UserActivation } from "@/components/Api";
+import { UserActivationAPI } from "@/components/Api";
 
 export default function Activation() {
   const fontLoaded = customizeFont();
@@ -37,14 +37,14 @@ export default function Activation() {
   }, [uid, token]);
 
   useEffect(() => {
-    if (activation && toast) {
+    if (activation.uid && activation.token) {
       const timerId = setTimeout(() => {
-        UserActivation(activation, toast, router, setIsLoading);
+        UserActivationAPI(activation, toast, router, setIsLoading);
       }, 2000);
 
       return () => clearTimeout(timerId);
     }
-  }, [activation, toast, router, setIsLoading]);
+  }, [activation.uid, activation.token]);
 
   return (
     <>

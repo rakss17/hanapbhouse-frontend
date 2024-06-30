@@ -92,7 +92,7 @@ export async function SignupAPI(
   }
 }
 
-export function UserActivation(
+export function UserActivationAPI(
   activation: ActivationProps,
   toast: any,
   router: any,
