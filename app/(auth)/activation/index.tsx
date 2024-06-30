@@ -38,9 +38,13 @@ export default function Activation() {
 
   useEffect(() => {
     if (activation && toast) {
-      UserActivation(activation, toast, router, setIsLoading);
+      const timerId = setTimeout(() => {
+        UserActivation(activation, toast, router, setIsLoading);
+      }, 2000);
+
+      return () => clearTimeout(timerId);
     }
-  }, [activation]);
+  }, [activation, toast, router, setIsLoading]);
 
   return (
     <>
