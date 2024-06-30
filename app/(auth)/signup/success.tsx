@@ -16,15 +16,13 @@ export default function Success() {
     <>
       <StatusBar style="dark" />
       <View
-        style={[
-          Styles.container,
-          {
-            backgroundColor: Colors.primaryColor2,
-            flex: 1,
-            position: "relative",
-            gap: 20,
-          },
-        ]}
+        style={{
+          alignItems: "center",
+          backgroundColor: Colors.primaryColor2,
+          flex: 1,
+          position: "relative",
+          gap: 15,
+        }}
       >
         <CircleShape
           style={{
@@ -37,14 +35,26 @@ export default function Success() {
           <>
             <Text
               style={{
-                fontFamily: "InriaSans",
-                fontSize: FontSizes.medium,
+                marginTop: Viewport.width * 0.3,
+                fontFamily: "Inter",
+                fontSize: FontSizes.large,
+                width: Viewport.width * 0.85,
+                fontWeight: "bold",
+                textAlign: "left",
+              }}
+            >
+              👋 Success!{" "}
+            </Text>
+            <Text
+              style={{
+                fontFamily: "Inter",
+                fontSize: FontSizes.normal,
                 width: Viewport.width * 0.85,
                 textAlign: "left",
               }}
             >
-              👋 Success! Please check your email to activate your account and
-              start using HanapBHouse App. Thank you!
+              Please check your email to activate your account and start using
+              HanapBHouse App. Thank you!
             </Text>
           </>
         )}
