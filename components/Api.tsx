@@ -130,6 +130,9 @@ export function UserActivation(
           animationType: "slide-in",
         });
       }
+      setTimeout(() => {
+        router.push("/(auth)/(signin)");
+      }, 1000);
     });
 }
 
