@@ -18,7 +18,7 @@ if (debug) {
 
 const instance = axios.create({
   baseURL: serverSideUrl,
-  timeout: 5000,
+  timeout: 8000,
 });
 
 export function parseError(error: any) {
@@ -256,5 +256,64 @@ export async function ResetPasswordAPI(
         animationType: "slide-in",
       });
     }
+  }
+}
+
+export async function ResetPasswordConfirmAPI(
+  uid: any,
+  token: any,
+  newPassword: any,
+  toast: any,
+  router: any,
+  setIsLoading: any,
+  setIsSuccess: any,
+  setData: any
+) {
+  setIsLoading(true);
+  try {
+    await instance
+      .post(
+        "api/v1/accounts/users/reset_password_confirm/",
+        {
+          uid: uid,
+          token: token,
+          new_password: newPassword,
+        },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then(() => {
+        setIsLoading(false);
+        setIsSuccess(true);
+
+        setData({
+          uid: "",
+          token: "",
+          password: "",
+        });
+        toast.show("Your password has been successfully reset. Thank you!", {
+          type: "success",
+          placement: "top",
+          duration: 6000,
+          animationType: "slide-in",
+        });
+        setTimeout(() => {
+          setIsSuccess(false);
+          router.push("/(auth)/(signin)");
+        }, 1000);
+      });
+  } catch (error: any) {
+    setIsLoading(false);
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
   }
 }
