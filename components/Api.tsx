@@ -192,3 +192,69 @@ export async function SigninAPI(
     }
   }
 }
+
+export async function ResetPasswordAPI(
+  email: any,
+  toast: any,
+  setEmail: any,
+  setIsForgotPasswordPressed: any,
+  setIsLoading: any,
+  setIsSuccess: any,
+  setIsErrorEmail: any
+) {
+  setIsLoading(true);
+  try {
+    await instance
+      .post(
+        "api/v1/accounts/users/reset_password/",
+        {
+          email: email,
+        },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then(() => {
+        setIsLoading(false);
+        setIsSuccess(true);
+        setIsErrorEmail(false);
+        setEmail("");
+        toast.show(
+          "Success! Please check you email to reset your password. Thank you!",
+          {
+            type: "success",
+            placement: "top",
+            duration: 6000,
+            animationType: "slide-in",
+          }
+        );
+        setTimeout(() => {
+          setIsForgotPasswordPressed(false);
+          setEmail("");
+          setIsSuccess(false);
+        }, 1000);
+      });
+  } catch (error: any) {
+    setIsLoading(false);
+    let error_message = parseError(error);
+    if (error_message.includes("User with given email does not exist")) {
+      setIsErrorEmail(true);
+      toast.show("We couldn't find an account with that email address.", {
+        type: "danger",
+        placement: "top",
+        duration: 6000,
+        animationType: "slide-in",
+      });
+    } else {
+      toast.show(error_message, {
+        type: "danger",
+        placement: "top",
+        duration: 6000,
+        animationType: "slide-in",
+      });
+    }
+  }
+}

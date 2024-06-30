@@ -1,6 +1,6 @@
 import { Text, View, Image } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import { LinearGradientBG } from "@/components/LinearGradientBG";
 import {
@@ -13,7 +13,7 @@ import {
 import { InputField } from "@/components/InputField";
 import { Button } from "@/components/Button";
 import { useToast } from "react-native-toast-notifications";
-import { SigninAPI } from "@/components/Api";
+import { ResetPasswordAPI, SigninAPI } from "@/components/Api";
 import { CustomizedModal } from "@/components/CustomizedModat";
 
 export default function Signin() {
@@ -24,6 +24,7 @@ export default function Signin() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [isErrorEmail, setIsErrorEmail] = useState(false);
   const [email, setEmail] = useState("");
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
   const [errorMessages, setErrorMessages] = useState<any[]>([]);
@@ -35,6 +36,15 @@ export default function Signin() {
   const handleSignin = () => {
     SigninAPI(data, toast, setIsLoading, router, setIsSuccess, setIsError);
   };
+  useEffect(() => {
+    let validationErrors: { [key: string]: string } = {};
+    if (isErrorEmail) {
+      validationErrors.email =
+        "We couldn't find an account with that email address.";
+    }
+    const errorArray = [validationErrors];
+    setErrorMessages(errorArray);
+  }, [isErrorEmail]);
 
   return (
     <KeyboardAwareScrollView
@@ -260,6 +270,7 @@ export default function Signin() {
                 const updatedErrors = { ...errorMessages };
                 delete updatedErrors[0]?.email;
                 setErrorMessages(updatedErrors);
+                setIsErrorEmail(false);
               }
             }}
             floatingPlaceHolder
@@ -309,6 +320,7 @@ export default function Signin() {
             onPress={() => {
               setIsForgotPasswordPressed(false);
               setEmail("");
+              setIsErrorEmail(false);
               const updatedErrors = { ...errorMessages };
               delete updatedErrors[0];
               setErrorMessages(updatedErrors);
@@ -341,11 +353,23 @@ export default function Signin() {
               if (!email || !emailRegex.test(email)) {
                 validationErrors.email = "Please input a valid email.";
               }
+              if (isErrorEmail) {
+                validationErrors.email =
+                  "We couldn't find an account with that email address.";
+              }
               const errorArray = [validationErrors];
               setErrorMessages(errorArray);
 
               if (Object.keys(validationErrors).length === 0) {
-                setIsLoading(true);
+                ResetPasswordAPI(
+                  email,
+                  toast,
+                  setEmail,
+                  setIsForgotPasswordPressed,
+                  setIsLoading,
+                  setIsSuccess,
+                  setIsErrorEmail
+                );
               }
             }}
           />
