@@ -1,3 +1,4 @@
+import { SignupAPI } from "@/components/Api";
 import { Button } from "@/components/Button";
 import { CircleShape } from "@/components/CircleShape";
 import { InputField } from "@/components/InputField";
@@ -8,9 +9,15 @@ import { useState } from "react";
 import { View, Text } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import RNPickerSelect from "react-native-picker-select";
+import { useToast } from "react-native-toast-notifications";
+import { useRouter } from "expo-router";
 
 export default function SignUp() {
   const fontLoaded = customizeFont();
+  const toast = useToast();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessages, setErrorMessages] = useState<any[]>([]);
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
   const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
@@ -40,6 +47,12 @@ export default function SignUp() {
 
     if (allFieldsBlank) {
       validationErrors.all = "Please fill out all the fields.";
+      toast.show("Please fill out all the fields", {
+        type: "danger",
+        placement: "top",
+        duration: 6000,
+        animationType: "slide-in",
+      });
     } else {
       if (!data.first_name) {
         validationErrors.first_name = "Please input first name.";
@@ -70,12 +83,13 @@ export default function SignUp() {
       }
     }
     const errorArray = [validationErrors];
-
     setErrorMessages(errorArray);
+
     if (Object.keys(validationErrors).length === 0) {
-      console.log("data", data);
+      SignupAPI(data, toast, setIsLoading, router, setIsSuccess);
     }
   };
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={{
@@ -131,17 +145,7 @@ export default function SignUp() {
             </>
           )}
         </View>
-        {errorMessages[0]?.all && (
-          <Text
-            style={{
-              color: Colors.errorColor,
-              fontSize: FontSizes.small,
-              textAlign: "center",
-            }}
-          >
-            {errorMessages[0]?.all}
-          </Text>
-        )}
+
         <View
           style={{
             width: Viewport.width * 0.8,
@@ -181,8 +185,8 @@ export default function SignUp() {
                 floatingPlaceHolder
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.first_name
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.first_name && (
@@ -227,8 +231,8 @@ export default function SignUp() {
                 floatingPlaceHolder
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.last_name
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.last_name && (
@@ -346,8 +350,8 @@ export default function SignUp() {
                 floatingPlaceHolder
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.contact_number
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.contact_number && (
@@ -392,8 +396,8 @@ export default function SignUp() {
                 floatingPlaceHolder
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.email
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.email && (
@@ -441,8 +445,8 @@ export default function SignUp() {
                 floatingPlaceHolder
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.username
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.username && (
@@ -499,8 +503,8 @@ export default function SignUp() {
                   errorMessages[0]?.all ||
                   errorMessages[0]?.password ||
                   errorMessages[0]?.passDoesNotMatch
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {!errorMessages[0]?.passDoesNotMatch && (
@@ -564,8 +568,8 @@ export default function SignUp() {
                 secureTextEntry
                 colors={
                   errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
-                    ? "error"
-                    : "dark"
+                    ? ["error"]
+                    : ["dark"]
                 }
               />
               {errorMessages[0]?.passDoesNotMatch && (
@@ -598,13 +602,23 @@ export default function SignUp() {
               borderRadius: 30,
               justifyContent: "center",
               alignItems: "center",
-              backgroundColor: Colors.primaryColor1,
+              backgroundColor:
+                isLoading || isSuccess
+                  ? Colors.secondaryColor4
+                  : Colors.primaryColor1,
             }}
             textStyle={{
               color: Colors.secondaryColor1,
               fontSize: FontSizes.small,
+              alignItems: "center",
+              textAlign: "center",
             }}
             onPress={handleSignup}
+            isLoading={isLoading}
+            disabled={isLoading || isSuccess ? true : false}
+            loadingText="Signing up"
+            loadingColor="white"
+            loadingSize={25}
           />
 
           <Link href="/(auth)/(signin)" asChild>

@@ -51,9 +51,9 @@ export const InputField: React.FC<InputFieldProps> = ({
 
   if (floatingPlaceHolder) {
     placeholderTextColor = "transparent";
-  } else if (colors === "light") {
+  } else if (colors?.includes("light")) {
     placeholderTextColor = Colors.secondaryColor2;
-  } else if (colors === "dark") {
+  } else if (colors?.includes("dark")) {
     placeholderTextColor = Colors.secondaryColor4;
   } else {
     placeholderTextColor = undefined;
@@ -69,7 +69,7 @@ export const InputField: React.FC<InputFieldProps> = ({
       {floatingPlaceHolder && (
         <Animated.Text
           style={[
-            colors === "light" && {
+            colors?.includes("light") && {
               position: "absolute",
               left: hasValue || isFocused ? 0 : 10,
               color:
@@ -80,7 +80,7 @@ export const InputField: React.FC<InputFieldProps> = ({
                 hasValue || isFocused ? FontSizes.tiny : FontSizes.small,
               bottom: 30,
             },
-            colors === "dark" && {
+            colors?.includes("dark") && {
               position: "absolute",
               left: hasValue || isFocused ? 0 : 10,
               color:
@@ -91,7 +91,7 @@ export const InputField: React.FC<InputFieldProps> = ({
                 hasValue || isFocused ? FontSizes.tiny : FontSizes.small,
               bottom: 30,
             },
-            colors === "error" && {
+            colors?.includes("error") && {
               position: "absolute",
               left: hasValue || isFocused ? 0 : 10,
               color:
@@ -131,17 +131,24 @@ export const InputField: React.FC<InputFieldProps> = ({
         keyboardType={keyboardType}
         style={[
           style,
-          colors === "light" && {
+          colors?.includes("light") && {
             color: Colors.secondaryColor1,
             fontSize: FontSizes.small,
           },
-          colors === "dark" && {
+          colors?.includes("light-error") && {
+            color: Colors.secondaryColor1,
+            fontSize: FontSizes.small,
+          },
+          colors?.includes("dark") && {
             color: Colors.secondaryColor3,
             fontSize: FontSizes.small,
           },
-
+          colors?.includes("dark-error") && {
+            color: Colors.secondaryColor3,
+            fontSize: FontSizes.small,
+          },
           floatingPlaceHolder &&
-            colors === "light" && {
+            colors?.includes("light") && {
               borderBottomWidth: 2,
               borderColor:
                 hasValue || isFocused
@@ -149,7 +156,7 @@ export const InputField: React.FC<InputFieldProps> = ({
                   : Colors.secondaryColor2,
             },
           floatingPlaceHolder &&
-            colors === "dark" && {
+            colors?.includes("dark") && {
               borderBottomWidth: 2,
               borderColor:
                 hasValue || isFocused
@@ -157,7 +164,7 @@ export const InputField: React.FC<InputFieldProps> = ({
                   : Colors.secondaryColor4,
             },
           floatingPlaceHolder &&
-            colors === "error" && {
+            colors?.includes("error") && {
               borderBottomWidth: 2,
               borderColor:
                 hasValue || isFocused ? Colors.errorColor : Colors.errorColor,
@@ -173,7 +180,7 @@ export const InputField: React.FC<InputFieldProps> = ({
           style={{ position: "absolute", left: Viewport.width * 0.7 }}
           onPress={togglePasswordVisibility}
         >
-          {colors === "light" && (
+          {colors?.includes("light") && (
             <Entypo
               name={showPassword ? "eye-with-line" : "eye"}
               size={24}
@@ -184,7 +191,7 @@ export const InputField: React.FC<InputFieldProps> = ({
               }
             />
           )}
-          {colors === "dark" && (
+          {colors?.includes("dark") && (
             <Entypo
               name={showPassword ? "eye-with-line" : "eye"}
               size={24}
@@ -195,7 +202,7 @@ export const InputField: React.FC<InputFieldProps> = ({
               }
             />
           )}
-          {colors === "error" && (
+          {colors?.includes("error") && (
             <Entypo
               name={showPassword ? "eye-with-line" : "eye"}
               size={24}

@@ -1,7 +1,7 @@
 import { Text, View, Image } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useState } from "react";
-import { Link } from "expo-router";
+import { useEffect, useState } from "react";
+import { Link, useRouter } from "expo-router";
 import { LinearGradientBG } from "@/components/LinearGradientBG";
 import {
   customizeFont,
@@ -12,13 +12,39 @@ import {
 } from "@/styles/styles";
 import { InputField } from "@/components/InputField";
 import { Button } from "@/components/Button";
+import { useToast } from "react-native-toast-notifications";
+import { ResetPasswordAPI, SigninAPI } from "@/components/Api";
+import { CustomizedModal } from "@/components/CustomizedModat";
 
 export default function Signin() {
   const fontLoaded = customizeFont();
+  const toast = useToast();
+  const router = useRouter();
+  const [isForgotPasswordPressed, setIsForgotPasswordPressed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isErrorEmail, setIsErrorEmail] = useState(false);
+  const [email, setEmail] = useState("");
+  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  const [errorMessages, setErrorMessages] = useState<any[]>([]);
   const [data, setData] = useState({
     username: "",
     password: "",
   });
+
+  const handleSignin = () => {
+    SigninAPI(data, toast, setIsLoading, router, setIsSuccess, setIsError);
+  };
+  useEffect(() => {
+    let validationErrors: { [key: string]: string } = {};
+    if (isErrorEmail) {
+      validationErrors.email =
+        "We couldn't find an account with that email address.";
+    }
+    const errorArray = [validationErrors];
+    setErrorMessages(errorArray);
+  }, [isErrorEmail]);
 
   return (
     <KeyboardAwareScrollView
@@ -97,7 +123,7 @@ export default function Signin() {
               });
             }}
             floatingPlaceHolder
-            colors="light"
+            colors={isError ? ["error", "light-error"] : ["light"]}
           />
           <InputField
             value={data.password}
@@ -115,7 +141,7 @@ export default function Signin() {
               });
             }}
             floatingPlaceHolder
-            colors="light"
+            colors={isError ? ["error", "light-error"] : ["light"]}
             secureTextEntry
           />
         </View>
@@ -143,6 +169,9 @@ export default function Signin() {
                 color: Colors.secondaryColor1,
                 fontSize: FontSizes.small,
               }}
+              onPress={() => {
+                setIsForgotPasswordPressed(true);
+              }}
             />
           </View>
           <Button
@@ -153,12 +182,21 @@ export default function Signin() {
               borderRadius: 30,
               justifyContent: "center",
               alignItems: "center",
-              backgroundColor: Colors.primaryColor1,
+              backgroundColor:
+                isLoading || isSuccess
+                  ? Colors.secondaryColor4
+                  : Colors.primaryColor1,
             }}
             textStyle={{
               color: Colors.secondaryColor1,
               fontSize: FontSizes.small,
             }}
+            onPress={handleSignin}
+            isLoading={isLoading}
+            disabled={isLoading || isSuccess ? true : false}
+            loadingText="Signing in"
+            loadingColor="white"
+            loadingSize={25}
           />
 
           <Link href="/(auth)/signup" asChild>
@@ -182,6 +220,161 @@ export default function Signin() {
           </Link>
         </View>
       </LinearGradientBG>
+      <CustomizedModal
+        visible={isForgotPasswordPressed}
+        animationType="fade"
+        transparent={true}
+        hasHeader={true}
+        headerContent="Forgot Password?"
+        headerStyle={{
+          fontSize: FontSizes.medium,
+          fontFamily: "Inter",
+          fontWeight: "bold",
+        }}
+        viewStyle={{
+          width: Viewport.width * 0.85,
+          height: Viewport.height * 0.42,
+          borderRadius: 25,
+          backgroundColor: Colors.primaryColor2,
+          gap: 10,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: FontSizes.small,
+            fontFamily: "Inter",
+            width: Viewport.width * 0.7,
+          }}
+        >
+          Please input the email address registered with your account below, and
+          we'll email instructions to reset your password.
+        </Text>
+        <View
+          style={{
+            height: Viewport.height * 0.06,
+          }}
+        >
+          <InputField
+            value={email}
+            placeholder="Email"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            style={{
+              width: Viewport.width * 0.7,
+              height: Viewport.height * 0.05,
+              paddingLeft: 10,
+            }}
+            onChangeText={(value) => {
+              setEmail(value);
+              if (value && emailRegex.test(value)) {
+                const updatedErrors = { ...errorMessages };
+                delete updatedErrors[0]?.email;
+                setErrorMessages(updatedErrors);
+                setIsErrorEmail(false);
+              }
+            }}
+            floatingPlaceHolder
+            colors={errorMessages[0]?.email ? ["error"] : ["dark"]}
+          />
+          {errorMessages[0]?.email && (
+            <Text
+              style={{
+                color: Colors.errorColor,
+                fontSize: FontSizes.tiny,
+                textAlign: "left",
+              }}
+            >
+              {errorMessages[0]?.email}
+            </Text>
+          )}
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-around",
+            width: Viewport.width * 0.7,
+            marginTop: Viewport.height * 0.04,
+          }}
+        >
+          <Button
+            text="Cancel"
+            buttonStyle={{
+              width: Viewport.width * 0.3,
+              height: Viewport.height * 0.06,
+              borderRadius: 20,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor:
+                isLoading || isSuccess ? Colors.secondaryColor4 : "transparent",
+              borderColor:
+                isLoading || isSuccess
+                  ? Colors.secondaryColor4
+                  : Colors.primaryColor1,
+              borderWidth: 2,
+            }}
+            disabled={isLoading || isSuccess ? true : false}
+            textStyle={{
+              color: Colors.secondaryColor3,
+              fontSize: FontSizes.small,
+            }}
+            onPress={() => {
+              setIsForgotPasswordPressed(false);
+              setEmail("");
+              setIsErrorEmail(false);
+              const updatedErrors = { ...errorMessages };
+              delete updatedErrors[0];
+              setErrorMessages(updatedErrors);
+            }}
+          />
+          <Button
+            text="Proceed"
+            buttonStyle={{
+              width: Viewport.width * 0.33,
+              height: Viewport.height * 0.06,
+              borderRadius: 20,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor:
+                isLoading || isSuccess
+                  ? Colors.secondaryColor4
+                  : Colors.primaryColor1,
+            }}
+            isLoading={isLoading}
+            disabled={isLoading || isSuccess ? true : false}
+            loadingText=""
+            loadingColor="white"
+            loadingSize={25}
+            textStyle={{
+              color: Colors.secondaryColor1,
+              fontSize: FontSizes.small,
+            }}
+            onPress={() => {
+              let validationErrors: { [key: string]: string } = {};
+              if (!email || !emailRegex.test(email)) {
+                validationErrors.email = "Please input a valid email.";
+              }
+              if (isErrorEmail) {
+                validationErrors.email =
+                  "We couldn't find an account with that email address.";
+              }
+              const errorArray = [validationErrors];
+              setErrorMessages(errorArray);
+
+              if (Object.keys(validationErrors).length === 0) {
+                ResetPasswordAPI(
+                  email,
+                  toast,
+                  setEmail,
+                  setIsForgotPasswordPressed,
+                  setIsLoading,
+                  setIsSuccess,
+                  setIsErrorEmail
+                );
+              }
+            }}
+          />
+        </View>
+      </CustomizedModal>
     </KeyboardAwareScrollView>
   );
 }

@@ -33,7 +33,6 @@ export const Styles = StyleSheet.create({
     justifyContent: "center",
     width: Viewport.width * 1.0,
     height: Viewport.height * 1.0,
-    backgroundColor: "transparent",
   },
   flexColumn: {
     display: "flex",
