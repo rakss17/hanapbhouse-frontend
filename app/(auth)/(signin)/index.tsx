@@ -233,6 +233,9 @@ export default function Signin() {
       <CustomizedModal
         visible={isForgotPasswordPressed}
         animationType="fade"
+        onCloseRequest={() => {
+          setIsForgotPasswordPressed(false);
+        }}
         transparent={true}
         hasHeader={true}
         headerContent="Forgot Password?"

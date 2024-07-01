@@ -1,6 +1,8 @@
 import { ModalProps } from "@/interfaces/ModalProps";
 import { Viewport } from "@/styles/styles";
 import { Modal, View, Text } from "react-native";
+import { useEffect } from "react";
+import { BackHandler } from "react-native";
 
 export const CustomizedModal: React.FC<ModalProps> = ({
   visible,
@@ -11,12 +13,29 @@ export const CustomizedModal: React.FC<ModalProps> = ({
   headerStyle,
   headerContent,
   children,
+  onCloseRequest,
 }) => {
+  useEffect(() => {
+    if (visible) {
+      const backAction = () => {
+        onCloseRequest();
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+
+      return () => backHandler.remove();
+    }
+  }, [visible, onCloseRequest]);
   return (
     <Modal
       visible={visible}
       animationType={animationType}
       transparent={transparent}
+      onRequestClose={onCloseRequest}
     >
       <View
         style={{
