@@ -5,6 +5,7 @@ import {
   SigninDataProps,
   SignupDataProps,
 } from "@/interfaces/AuthDataProps";
+import { setUserInfo } from "@/lib/features/userInfo/userInfoSlices";
 
 const debug = true;
 
@@ -142,30 +143,40 @@ export async function SigninAPI(
   setIsLoading: any,
   router: any,
   setIsSuccess: any,
-  setIsError: any
+  setIsError: any,
+  dispatch: any
 ) {
   setIsLoading(true);
 
   try {
-    await instance
-      .post("api/v1/accounts/jwt/create/", data)
-      .then((response) => {
-        setAccessToken(response.data.access);
-        setRefreshToken(response.data.refresh);
-        setIsLoading(false);
-        setIsSuccess(true);
-        setIsError(false);
-        toast.show("Successfully login!", {
-          type: "success",
-          placement: "top",
-          duration: 6000,
-          animationType: "slide-in",
-        });
-        setTimeout(() => {
-          router.push("/(tabs)");
-          setIsSuccess(false);
-        }, 1000);
-      });
+    const signInResponse = await instance.post(
+      "api/v1/accounts/jwt/create/",
+      data
+    );
+
+    const userInfoAPI = await instance.get("api/v1/accounts/me/", {
+      headers: {
+        Authorization: `Bearer ${signInResponse.data.access}`,
+        "Content-Type": "application/json",
+      },
+    });
+    dispatch(setUserInfo(userInfoAPI.data));
+    setAccessToken(signInResponse.data.access);
+    setRefreshToken(signInResponse.data.refresh);
+
+    setIsLoading(false);
+    setIsSuccess(true);
+    setIsError(false);
+    toast.show("Successfully login!", {
+      type: "success",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+    setTimeout(() => {
+      router.push("/(tabs)");
+      setIsSuccess(false);
+    }, 1000);
   } catch (error: any) {
     setIsLoading(false);
     let error_message = parseError(error);

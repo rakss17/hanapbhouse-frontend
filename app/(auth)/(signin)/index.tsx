@@ -13,6 +13,7 @@ import {
 import { InputField } from "@/components/InputField";
 import { Button } from "@/components/Button";
 import { useToast } from "react-native-toast-notifications";
+import { useDispatch } from "react-redux";
 import { ResetPasswordAPI, SigninAPI } from "@/components/Api";
 import { CustomizedModal } from "@/components/CustomizedModat";
 
@@ -20,6 +21,7 @@ export default function Signin() {
   const fontLoaded = customizeFont();
   const toast = useToast();
   const router = useRouter();
+  const dispatch = useDispatch();
   const [isForgotPasswordPressed, setIsForgotPasswordPressed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -34,7 +36,15 @@ export default function Signin() {
   });
 
   const handleSignin = () => {
-    SigninAPI(data, toast, setIsLoading, router, setIsSuccess, setIsError);
+    SigninAPI(
+      data,
+      toast,
+      setIsLoading,
+      router,
+      setIsSuccess,
+      setIsError,
+      dispatch
+    );
   };
   useEffect(() => {
     let validationErrors: { [key: string]: string } = {};
