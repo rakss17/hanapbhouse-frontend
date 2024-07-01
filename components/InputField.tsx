@@ -20,6 +20,10 @@ export const InputField: React.FC<InputFieldProps> = ({
   floatingPlaceHolder,
   keyboardType,
   colors,
+  showSoftInputOnFocus,
+  isPressable,
+  isFocusPressable,
+  onPressableFocus,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(!!value);
@@ -30,6 +34,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
+  const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     setHasValue(!!value);
@@ -58,6 +63,28 @@ export const InputField: React.FC<InputFieldProps> = ({
   } else {
     placeholderTextColor = undefined;
   }
+
+  const onPressableFocusWrapper = () => {
+    if (onPressableFocus) {
+      onPressableFocus();
+      handleFocus();
+    }
+  };
+
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (inputRef.current?.isFocused()) {
+        inputRef.current.blur();
+        return true;
+      }
+      return false;
+    };
+
+    if (!isFocusPressable) {
+      handleBackPress();
+    }
+  }, [!isFocusPressable]);
+
   return (
     <View
       style={{
@@ -121,11 +148,13 @@ export const InputField: React.FC<InputFieldProps> = ({
       )}
 
       <TextInput
+        ref={inputRef}
         value={value}
         onChangeText={(text) => {
           onChangeText(text);
           setHasValue(!!text);
         }}
+        showSoftInputOnFocus={showSoftInputOnFocus}
         placeholder={floatingPlaceHolder ? "" : placeholder}
         autoCapitalize={autoCapitalize}
         keyboardType={keyboardType}
@@ -170,7 +199,7 @@ export const InputField: React.FC<InputFieldProps> = ({
                 hasValue || isFocused ? Colors.errorColor : Colors.errorColor,
             },
         ]}
-        onFocus={handleFocus}
+        onFocus={isPressable ? onPressableFocusWrapper : handleFocus}
         onBlur={handleBlur}
         placeholderTextColor={placeholderTextColor}
         secureTextEntry={secureTextEntry && !showPassword}
