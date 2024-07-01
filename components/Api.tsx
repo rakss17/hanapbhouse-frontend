@@ -160,6 +160,7 @@ export async function SigninAPI(
         "Content-Type": "application/json",
       },
     });
+
     dispatch(setUserInfo(userInfoAPI.data));
     setAccessToken(signInResponse.data.access);
     setRefreshToken(signInResponse.data.refresh);
@@ -167,16 +168,23 @@ export async function SigninAPI(
     setIsLoading(false);
     setIsSuccess(true);
     setIsError(false);
+    if (userInfoAPI.data.preferred_area === null) {
+      setTimeout(() => {
+        router.push("/(auth)/admission");
+        setIsSuccess(false);
+      }, 1000);
+    } else {
+      setTimeout(() => {
+        router.push("/(tabs)");
+        setIsSuccess(false);
+      }, 1000);
+    }
     toast.show("Successfully login!", {
       type: "success",
       placement: "top",
       duration: 6000,
       animationType: "slide-in",
     });
-    setTimeout(() => {
-      router.push("/(tabs)");
-      setIsSuccess(false);
-    }, 1000);
   } catch (error: any) {
     setIsLoading(false);
     let error_message = parseError(error);
