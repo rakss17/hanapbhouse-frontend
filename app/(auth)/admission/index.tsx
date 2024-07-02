@@ -62,6 +62,14 @@ export default function Admission() {
   const filteredProvinces = phPlaces.flatMap((place) =>
     place.provinces.filter((province) => province.regionName === data.region)
   );
+  const filteredCity = filteredProvinces.flatMap((place) =>
+    place.municipalities.filter(
+      (municipality) => municipality.provinceName === data.province
+    )
+  );
+  const filteredBarangays = filteredCity.flatMap((city) =>
+    city.barangays.filter(() => city.name === data.city)
+  );
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={{
@@ -112,125 +120,199 @@ export default function Admission() {
               </Text>
             </>
           )}
-          <View
-            style={{
-              height: Viewport.height * 0.05,
-              marginTop: Viewport.width * 0.02,
-            }}
-          >
-            <InputField
-              value={data.region}
-              placeholder="Region"
-              autoCapitalize="none"
+          <View style={{ gap: 20 }}>
+            <View
               style={{
-                width: Viewport.width * 0.8,
                 height: Viewport.height * 0.05,
-                paddingLeft: 10,
+                marginTop: Viewport.width * 0.02,
               }}
-              isFocusPressable={isRegionFieldFocus}
-              isPressable={true}
-              showSoftInputOnFocus={false}
-              onChangeText={() => {}}
-              onPressableFocus={() => {
-                setIsRegionFieldFocus(true);
-              }}
-              floatingPlaceHolder
-              colors={
-                errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
-                  ? ["error"]
-                  : ["dark"]
-              }
-            />
-          </View>
-          <View
-            style={{
-              height: Viewport.height * 0.05,
-              marginTop: Viewport.width * 0.02,
-            }}
-          >
-            <InputField
-              value={data.province}
-              placeholder="Province"
-              autoCapitalize="none"
+            >
+              <InputField
+                value={data.region}
+                placeholder="Region"
+                autoCapitalize="none"
+                style={{
+                  width: Viewport.width * 0.8,
+                  height: Viewport.height * 0.05,
+                  paddingLeft: 10,
+                }}
+                isFocusPressable={isRegionFieldFocus}
+                isPressable={true}
+                showSoftInputOnFocus={false}
+                onChangeText={() => {}}
+                onPressableFocus={() => {
+                  setIsRegionFieldFocus(true);
+                }}
+                floatingPlaceHolder
+                colors={
+                  errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
+                    ? ["error"]
+                    : ["dark"]
+                }
+              />
+              {!errorMessages[0]?.passDoesNotMatch && (
+                <Text
+                  style={{
+                    color:
+                      errorMessages[0]?.password || errorMessages[0]?.all
+                        ? Colors.errorColor
+                        : Colors.secondaryColor3,
+                    fontSize: FontSizes.tiny,
+                    textAlign: "left",
+                    fontWeight:
+                      errorMessages[0]?.password || errorMessages[0]?.all
+                        ? "normal"
+                        : "bold",
+                  }}
+                >
+                  Please select region
+                </Text>
+              )}
+            </View>
+            <View
               style={{
-                width: Viewport.width * 0.8,
                 height: Viewport.height * 0.05,
-                paddingLeft: 10,
+                marginTop: Viewport.width * 0.02,
               }}
-              isFocusPressable={isProvinceFieldFocus}
-              isPressable={true}
-              showSoftInputOnFocus={false}
-              onChangeText={() => {}}
-              onPressableFocus={() => {
-                setIsProvinceFieldFocus(true);
-              }}
-              floatingPlaceHolder
-              colors={
-                errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
-                  ? ["error"]
-                  : ["dark"]
-              }
-            />
-          </View>
-          <View
-            style={{
-              height: Viewport.height * 0.05,
-              marginTop: Viewport.width * 0.02,
-            }}
-          >
-            <InputField
-              value={data.city}
-              placeholder="City or municipality"
-              autoCapitalize="none"
+            >
+              <InputField
+                value={data.province}
+                placeholder="Province"
+                autoCapitalize="none"
+                style={{
+                  width: Viewport.width * 0.8,
+                  height: Viewport.height * 0.05,
+                  paddingLeft: 10,
+                }}
+                isFocusPressable={isProvinceFieldFocus}
+                isPressable={true}
+                showSoftInputOnFocus={false}
+                onChangeText={() => {}}
+                onPressableFocus={() => {
+                  setIsProvinceFieldFocus(true);
+                }}
+                floatingPlaceHolder
+                colors={
+                  errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
+                    ? ["error"]
+                    : ["dark"]
+                }
+              />
+              {!errorMessages[0]?.passDoesNotMatch && (
+                <Text
+                  style={{
+                    color:
+                      errorMessages[0]?.password || errorMessages[0]?.all
+                        ? Colors.errorColor
+                        : Colors.secondaryColor3,
+                    fontSize: FontSizes.tiny,
+                    textAlign: "left",
+                    fontWeight:
+                      errorMessages[0]?.password || errorMessages[0]?.all
+                        ? "normal"
+                        : "bold",
+                  }}
+                >
+                  Please select region first
+                </Text>
+              )}
+            </View>
+            <View
               style={{
-                width: Viewport.width * 0.8,
                 height: Viewport.height * 0.05,
-                paddingLeft: 10,
+                marginTop: Viewport.width * 0.02,
               }}
-              isFocusPressable={isCityFieldFocus}
-              isPressable={true}
-              showSoftInputOnFocus={false}
-              onChangeText={() => {}}
-              onPressableFocus={() => {
-                setIsCityFieldFocus(true);
-              }}
-              floatingPlaceHolder
-              colors={
-                errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
-                  ? ["error"]
-                  : ["dark"]
-              }
-            />
-          </View>
-          <View
-            style={{
-              height: Viewport.height * 0.05,
-              marginTop: Viewport.width * 0.02,
-            }}
-          >
-            <InputField
-              value={data.street_3}
-              placeholder="Barangay"
-              autoCapitalize="none"
+            >
+              <InputField
+                value={data.city}
+                placeholder="City or municipality"
+                autoCapitalize="none"
+                style={{
+                  width: Viewport.width * 0.8,
+                  height: Viewport.height * 0.05,
+                  paddingLeft: 10,
+                }}
+                isFocusPressable={isCityFieldFocus}
+                isPressable={true}
+                showSoftInputOnFocus={false}
+                onChangeText={() => {}}
+                onPressableFocus={() => {
+                  setIsCityFieldFocus(true);
+                }}
+                floatingPlaceHolder
+                colors={
+                  errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
+                    ? ["error"]
+                    : ["dark"]
+                }
+              />
+              {!errorMessages[0]?.passDoesNotMatch && (
+                <Text
+                  style={{
+                    color:
+                      errorMessages[0]?.password || errorMessages[0]?.all
+                        ? Colors.errorColor
+                        : Colors.secondaryColor3,
+                    fontSize: FontSizes.tiny,
+                    textAlign: "left",
+                    fontWeight:
+                      errorMessages[0]?.password || errorMessages[0]?.all
+                        ? "normal"
+                        : "bold",
+                  }}
+                >
+                  Please select province first
+                </Text>
+              )}
+            </View>
+            <View
               style={{
-                width: Viewport.width * 0.8,
                 height: Viewport.height * 0.05,
-                paddingLeft: 10,
+                marginTop: Viewport.width * 0.02,
               }}
-              isFocusPressable={isBarangayFieldFocus}
-              isPressable={true}
-              showSoftInputOnFocus={false}
-              onChangeText={() => {}}
-              onPressableFocus={() => {
-                setIsBarangayFieldFocus(true);
-              }}
-              floatingPlaceHolder
-              colors={
-                errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
-                  ? ["error"]
-                  : ["dark"]
-              }
-            />
+            >
+              <InputField
+                value={data.street_3}
+                placeholder="Barangay"
+                autoCapitalize="none"
+                style={{
+                  width: Viewport.width * 0.8,
+                  height: Viewport.height * 0.05,
+                  paddingLeft: 10,
+                }}
+                isFocusPressable={isBarangayFieldFocus}
+                isPressable={true}
+                showSoftInputOnFocus={false}
+                onChangeText={() => {}}
+                onPressableFocus={() => {
+                  setIsBarangayFieldFocus(true);
+                }}
+                floatingPlaceHolder
+                colors={
+                  errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
+                    ? ["error"]
+                    : ["dark"]
+                }
+              />
+              {!errorMessages[0]?.passDoesNotMatch && (
+                <Text
+                  style={{
+                    color:
+                      errorMessages[0]?.password || errorMessages[0]?.all
+                        ? Colors.errorColor
+                        : Colors.secondaryColor3,
+                    fontSize: FontSizes.tiny,
+                    textAlign: "left",
+                    fontWeight:
+                      errorMessages[0]?.password || errorMessages[0]?.all
+                        ? "normal"
+                        : "bold",
+                  }}
+                >
+                  Please select city or municipality first
+                </Text>
+              )}
+            </View>
           </View>
         </View>
       </View>
@@ -257,9 +339,9 @@ export default function Admission() {
             height: Viewport.height * 0.42,
           }}
         >
-          {phPlaces.map((place: any) => (
+          {phPlaces.map((region: any) => (
             <TouchableOpacity
-              key={place.id}
+              key={region.id}
               style={{
                 borderColor: "black",
                 borderBottomWidth: 2,
@@ -270,7 +352,7 @@ export default function Admission() {
               onPress={() => {
                 setData({
                   ...data,
-                  region: place.regionName,
+                  region: region.regionName,
                 });
                 setIsRegionFieldFocus(false);
               }}
@@ -281,7 +363,7 @@ export default function Admission() {
                   fontSize: FontSizes.normal,
                 }}
               >
-                {place.regionName}
+                {region.regionName}
               </Text>
             </TouchableOpacity>
           ))}
@@ -310,34 +392,42 @@ export default function Admission() {
             height: Viewport.height * 0.42,
           }}
         >
-          {filteredProvinces.map((place: any) => (
-            <TouchableOpacity
-              key={place.id}
-              style={{
-                borderColor: "black",
-                borderBottomWidth: 2,
-                height: Viewport.height * 0.07,
-                width: Viewport.width * 0.85,
-                justifyContent: "center",
-              }}
-              onPress={() => {
-                setData({
-                  ...data,
-                  province: place.province,
-                });
-                setIsProvinceFieldFocus(false);
-              }}
-            >
-              <Text
-                style={{
-                  paddingLeft: Viewport.width * 0.08,
-                  fontSize: FontSizes.normal,
-                }}
-              >
-                {place.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          {filteredProvinces.length === 0 ? (
+            <Text style={{ textAlign: "left", fontSize: FontSizes.normal }}>
+              Please select region first to display provinces.
+            </Text>
+          ) : (
+            <>
+              {filteredProvinces.map((province: any, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={{
+                    borderColor: "black",
+                    borderBottomWidth: 2,
+                    height: Viewport.height * 0.07,
+                    width: Viewport.width * 0.85,
+                    justifyContent: "center",
+                  }}
+                  onPress={() => {
+                    setData({
+                      ...data,
+                      province: province.name,
+                    });
+                    setIsProvinceFieldFocus(false);
+                  }}
+                >
+                  <Text
+                    style={{
+                      paddingLeft: Viewport.width * 0.08,
+                      fontSize: FontSizes.normal,
+                    }}
+                  >
+                    {province.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </>
+          )}
         </ScrollView>
       </CustomizedModal>
       <CustomizedModal
@@ -354,7 +444,53 @@ export default function Admission() {
           backgroundColor: Colors.primaryColor2,
           gap: 10,
         }}
-      ></CustomizedModal>
+      >
+        <ScrollView
+          style={{
+            right: Viewport.width * 0.08,
+            bottom: Viewport.height * 0.015,
+            width: Viewport.width * 0.85,
+            height: Viewport.height * 0.42,
+          }}
+        >
+          {filteredCity.length === 0 ? (
+            <Text style={{ textAlign: "left", fontSize: FontSizes.normal }}>
+              Please select province first to display cities and municipalities.
+            </Text>
+          ) : (
+            <>
+              {filteredCity.map((city: any, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={{
+                    borderColor: "black",
+                    borderBottomWidth: 2,
+                    height: Viewport.height * 0.07,
+                    width: Viewport.width * 0.85,
+                    justifyContent: "center",
+                  }}
+                  onPress={() => {
+                    setData({
+                      ...data,
+                      city: city.name,
+                    });
+                    setIsCityFieldFocus(false);
+                  }}
+                >
+                  <Text
+                    style={{
+                      paddingLeft: Viewport.width * 0.08,
+                      fontSize: FontSizes.normal,
+                    }}
+                  >
+                    {city.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </>
+          )}
+        </ScrollView>
+      </CustomizedModal>
       <CustomizedModal
         visible={isBarangayFieldFocus}
         animationType="fade"
@@ -369,7 +505,53 @@ export default function Admission() {
           backgroundColor: Colors.primaryColor2,
           gap: 10,
         }}
-      ></CustomizedModal>
+      >
+        <ScrollView
+          style={{
+            right: Viewport.width * 0.08,
+            bottom: Viewport.height * 0.015,
+            width: Viewport.width * 0.85,
+            height: Viewport.height * 0.42,
+          }}
+        >
+          {filteredBarangays.length === 0 ? (
+            <Text style={{ textAlign: "left", fontSize: FontSizes.normal }}>
+              Please select city or municipality to display barangays.
+            </Text>
+          ) : (
+            <>
+              {filteredBarangays.map((barangay: any, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={{
+                    borderColor: "black",
+                    borderBottomWidth: 2,
+                    height: Viewport.height * 0.07,
+                    width: Viewport.width * 0.85,
+                    justifyContent: "center",
+                  }}
+                  onPress={() => {
+                    setData({
+                      ...data,
+                      street_3: barangay,
+                    });
+                    setIsBarangayFieldFocus(false);
+                  }}
+                >
+                  <Text
+                    style={{
+                      paddingLeft: Viewport.width * 0.08,
+                      fontSize: FontSizes.normal,
+                    }}
+                  >
+                    {barangay}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </>
+          )}
+        </ScrollView>
+      </CustomizedModal>
     </KeyboardAwareScrollView>
   );
 }
