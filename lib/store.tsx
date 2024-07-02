@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import userInfoSlices from "./features/userInfo/userInfoSlices";
+import statusInfoSlices from "./features/statusInfo/statusInfoSlices";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const userInfoPersistConfig = {
@@ -13,9 +14,20 @@ const persistedUserInfoReducer = persistReducer(
   userInfoSlices
 );
 
+const statusInfoPersistConfig = {
+  key: "statusInfo",
+  storage: AsyncStorage,
+};
+
+const persistedStatusInfoReducer = persistReducer(
+  statusInfoPersistConfig,
+  statusInfoSlices
+);
+
 const store = configureStore({
   reducer: {
     userInfo: persistedUserInfoReducer,
+    statusInfo: persistedStatusInfoReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
