@@ -1,19 +1,25 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import { useEffect, useState } from "react";
-import { useRouter, useGlobalSearchParams } from "expo-router";
+import { useState, useCallback } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
 import { useToast } from "react-native-toast-notifications";
 import { Colors, FontSizes, Viewport, customizeFont } from "@/styles/styles";
 import { CircleShape } from "@/components/CircleShape";
 import { StatusBar } from "expo-status-bar";
-import { ResetPasswordConfirmAPI, UserActivationAPI } from "@/components/Api";
+import { FinishingAdmissionAPI } from "@/components/Api";
 import { InputField } from "@/components/InputField";
 import { Button } from "@/components/Button";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { CustomizedModal } from "@/components/CustomizedModat";
 import phPlaces from "@/assets/ph_places/data.json";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 
 export default function Admission() {
   const fontLoaded = customizeFont();
+  const admissionStatus = useSelector(
+    (state: RootState) => state.statusInfo.on_admission
+  );
+  const dispatch = useDispatch();
   const [errorMessages, setErrorMessages] = useState<any[]>([]);
   const [isRegionFieldFocus, setIsRegionFieldFocus] = useState(false);
   const [isProvinceFieldFocus, setIsProvinceFieldFocus] = useState(false);
@@ -21,44 +27,69 @@ export default function Admission() {
   const [isBarangayFieldFocus, setIsBarangayFieldFocus] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const toast = useToast();
+  const router = useRouter();
   const [data, setData] = useState({
     street_3: "",
     city: "",
     province: "",
     region: "",
   });
-  const toast = useToast();
-  const router = useRouter();
-  const params = useGlobalSearchParams();
-  const uid = params.slug3;
-  const token = params.slug4;
 
-  //   const handleResetPassword = () => {
-  //     let validationErrors: { [key: string]: string } = {};
-  //     if (!passwordRegex.test(data.password)) {
-  //       validationErrors.password =
-  //         "Please include at least 8 characters long and include at least one uppercase letter and one number.";
-  //     } else {
-  //       if (data.password !== data.confirm_password) {
-  //         validationErrors.passDoesNotMatch = "Password does not match.";
-  //       }
-  //     }
-  //     const errorArray = [validationErrors];
-  //     setErrorMessages(errorArray);
+  useFocusEffect(
+    useCallback(() => {
+      if (!admissionStatus) {
+        router.push("/(tabs)");
+      }
+    }, [!admissionStatus])
+  );
 
-  //     if (Object.keys(validationErrors).length === 0) {
-  //       ResetPasswordConfirmAPI(
-  //         data.uid,
-  //         data.token,
-  //         data.password,
-  //         toast,
-  //         router,
-  //         setIsLoading,
-  //         setIsSuccess,
-  //         setData
-  //       );
-  //     }
-  //   };
+  const handleContinue = () => {
+    let validationErrors: { [key: string]: string } = {};
+
+    const allFieldsBlank =
+      !data.region && !data.province && !data.city && !data.street_3;
+
+    if (allFieldsBlank) {
+      validationErrors.all = "Please fill out all the fields.";
+      toast.show("Please fill out all the fields", {
+        type: "danger",
+        placement: "top",
+        duration: 6000,
+        animationType: "slide-in",
+      });
+    } else {
+      if (!data.region) {
+        validationErrors.regionError = "Please select region.";
+      }
+      if (!data.province) {
+        validationErrors.provinceError = "Please select province.";
+      }
+      if (!data.city) {
+        validationErrors.cityError = "Please select city or municipality.";
+      }
+      if (!data.street_3) {
+        validationErrors.barangayError = "Please select barangay.";
+      }
+    }
+
+    const errorArray = [validationErrors];
+    setErrorMessages(errorArray);
+
+    if (Object.keys(validationErrors).length === 0) {
+      const preferredArea = `${data.street_3}, ${data.city}`;
+      FinishingAdmissionAPI(
+        preferredArea,
+        toast,
+        router,
+        setIsLoading,
+        setIsSuccess,
+        setData,
+        dispatch
+      );
+    }
+  };
+
   const filteredProvinces = phPlaces.flatMap((place) =>
     place.provinces.filter((province) => province.regionName === data.region)
   );
@@ -70,6 +101,7 @@ export default function Admission() {
   const filteredBarangays = filteredCity.flatMap((city) =>
     city.barangays.filter(() => city.name === data.city)
   );
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={{
@@ -145,27 +177,27 @@ export default function Admission() {
                 }}
                 floatingPlaceHolder
                 colors={
-                  errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
+                  errorMessages[0]?.all || errorMessages[0]?.regionError
                     ? ["error"]
                     : ["dark"]
                 }
               />
-              {!errorMessages[0]?.passDoesNotMatch && (
+              {errorMessages[0]?.regionError && (
                 <Text
                   style={{
                     color:
-                      errorMessages[0]?.password || errorMessages[0]?.all
+                      errorMessages[0]?.regionError || errorMessages[0]?.all
                         ? Colors.errorColor
                         : Colors.secondaryColor3,
                     fontSize: FontSizes.tiny,
                     textAlign: "left",
                     fontWeight:
-                      errorMessages[0]?.password || errorMessages[0]?.all
+                      errorMessages[0]?.regionError || errorMessages[0]?.all
                         ? "normal"
                         : "bold",
                   }}
                 >
-                  Please select region
+                  {errorMessages[0]?.regionError}
                 </Text>
               )}
             </View>
@@ -193,27 +225,27 @@ export default function Admission() {
                 }}
                 floatingPlaceHolder
                 colors={
-                  errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
+                  errorMessages[0]?.all || errorMessages[0]?.provinceError
                     ? ["error"]
                     : ["dark"]
                 }
               />
-              {!errorMessages[0]?.passDoesNotMatch && (
+              {errorMessages[0]?.provinceError && (
                 <Text
                   style={{
                     color:
-                      errorMessages[0]?.password || errorMessages[0]?.all
+                      errorMessages[0]?.provinceError || errorMessages[0]?.all
                         ? Colors.errorColor
                         : Colors.secondaryColor3,
                     fontSize: FontSizes.tiny,
                     textAlign: "left",
                     fontWeight:
-                      errorMessages[0]?.password || errorMessages[0]?.all
+                      errorMessages[0]?.provinceError || errorMessages[0]?.all
                         ? "normal"
                         : "bold",
                   }}
                 >
-                  Please select region first
+                  {errorMessages[0]?.provinceError}
                 </Text>
               )}
             </View>
@@ -241,27 +273,27 @@ export default function Admission() {
                 }}
                 floatingPlaceHolder
                 colors={
-                  errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
+                  errorMessages[0]?.all || errorMessages[0]?.cityError
                     ? ["error"]
                     : ["dark"]
                 }
               />
-              {!errorMessages[0]?.passDoesNotMatch && (
+              {errorMessages[0]?.cityError && (
                 <Text
                   style={{
                     color:
-                      errorMessages[0]?.password || errorMessages[0]?.all
+                      errorMessages[0]?.cityError || errorMessages[0]?.all
                         ? Colors.errorColor
                         : Colors.secondaryColor3,
                     fontSize: FontSizes.tiny,
                     textAlign: "left",
                     fontWeight:
-                      errorMessages[0]?.password || errorMessages[0]?.all
+                      errorMessages[0]?.cityError || errorMessages[0]?.all
                         ? "normal"
                         : "bold",
                   }}
                 >
-                  Please select province first
+                  {errorMessages[0]?.cityError}
                 </Text>
               )}
             </View>
@@ -289,30 +321,55 @@ export default function Admission() {
                 }}
                 floatingPlaceHolder
                 colors={
-                  errorMessages[0]?.all || errorMessages[0]?.passDoesNotMatch
+                  errorMessages[0]?.all || errorMessages[0]?.barangayError
                     ? ["error"]
                     : ["dark"]
                 }
               />
-              {!errorMessages[0]?.passDoesNotMatch && (
+              {errorMessages[0]?.barangayError && (
                 <Text
                   style={{
                     color:
-                      errorMessages[0]?.password || errorMessages[0]?.all
+                      errorMessages[0]?.barangayError || errorMessages[0]?.all
                         ? Colors.errorColor
                         : Colors.secondaryColor3,
                     fontSize: FontSizes.tiny,
                     textAlign: "left",
                     fontWeight:
-                      errorMessages[0]?.password || errorMessages[0]?.all
+                      errorMessages[0]?.barangayError || errorMessages[0]?.all
                         ? "normal"
                         : "bold",
                   }}
                 >
-                  Please select city or municipality first
+                  {errorMessages[0]?.barangayError}
                 </Text>
               )}
             </View>
+            <Button
+              text="Continue"
+              buttonStyle={{
+                width: Viewport.width * 0.8,
+                height: Viewport.height * 0.06,
+                marginTop: Viewport.height * 0.03,
+                borderRadius: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor:
+                  isLoading || isSuccess
+                    ? Colors.secondaryColor4
+                    : Colors.primaryColor1,
+              }}
+              textStyle={{
+                color: Colors.secondaryColor1,
+                fontSize: FontSizes.small,
+              }}
+              onPress={handleContinue}
+              isLoading={isLoading}
+              disabled={isLoading || isSuccess ? true : false}
+              loadingText=""
+              loadingColor="white"
+              loadingSize={25}
+            />
           </View>
         </View>
       </View>
@@ -350,11 +407,25 @@ export default function Admission() {
                 justifyContent: "center",
               }}
               onPress={() => {
-                setData({
-                  ...data,
-                  region: region.regionName,
-                });
                 setIsRegionFieldFocus(false);
+                if (data.region && data.region !== region.regionName) {
+                  setData({
+                    ...data,
+                    region: region.regionName,
+                    province: "",
+                    city: "",
+                    street_3: "",
+                  });
+                } else {
+                  setData({
+                    ...data,
+                    region: region.regionName,
+                  });
+                }
+                const updatedErrors = { ...errorMessages };
+                delete updatedErrors[0]?.all;
+                delete updatedErrors[0]?.regionError;
+                setErrorMessages(updatedErrors);
               }}
             >
               <Text
@@ -409,11 +480,24 @@ export default function Admission() {
                     justifyContent: "center",
                   }}
                   onPress={() => {
-                    setData({
-                      ...data,
-                      province: province.name,
-                    });
                     setIsProvinceFieldFocus(false);
+                    if (data.province && data.province !== province.name) {
+                      setData({
+                        ...data,
+                        province: province.name,
+                        city: "",
+                        street_3: "",
+                      });
+                    } else {
+                      setData({
+                        ...data,
+                        province: province.name,
+                      });
+                    }
+
+                    const updatedErrors = { ...errorMessages };
+                    delete updatedErrors[0]?.provinceError;
+                    setErrorMessages(updatedErrors);
                   }}
                 >
                   <Text
@@ -470,11 +554,22 @@ export default function Admission() {
                     justifyContent: "center",
                   }}
                   onPress={() => {
-                    setData({
-                      ...data,
-                      city: city.name,
-                    });
                     setIsCityFieldFocus(false);
+                    if (data.city && data.city !== city.name) {
+                      setData({
+                        ...data,
+                        city: city.name,
+                        street_3: "",
+                      });
+                    } else {
+                      setData({
+                        ...data,
+                        city: city.name,
+                      });
+                    }
+                    const updatedErrors = { ...errorMessages };
+                    delete updatedErrors[0]?.cityError;
+                    setErrorMessages(updatedErrors);
                   }}
                 >
                   <Text
@@ -531,11 +626,14 @@ export default function Admission() {
                     justifyContent: "center",
                   }}
                   onPress={() => {
+                    setIsBarangayFieldFocus(false);
                     setData({
                       ...data,
                       street_3: barangay,
                     });
-                    setIsBarangayFieldFocus(false);
+                    const updatedErrors = { ...errorMessages };
+                    delete updatedErrors[0]?.barangayError;
+                    setErrorMessages(updatedErrors);
                   }}
                 >
                   <Text

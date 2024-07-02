@@ -6,6 +6,10 @@ import {
   SignupDataProps,
 } from "@/interfaces/AuthDataProps";
 import { setUserInfo } from "@/lib/features/userInfo/userInfoSlices";
+import {
+  setIsLoggedIn,
+  setOnAdmission,
+} from "@/lib/features/statusInfo/statusInfoSlices";
 
 const debug = true;
 
@@ -162,19 +166,25 @@ export async function SigninAPI(
     });
 
     dispatch(setUserInfo(userInfoAPI.data));
+    dispatch(setIsLoggedIn(true));
     setAccessToken(signInResponse.data.access);
     setRefreshToken(signInResponse.data.refresh);
 
     setIsLoading(false);
     setIsSuccess(true);
     setIsError(false);
-    if (userInfoAPI.data.preferred_area === null) {
+    if (
+      userInfoAPI.data.preferred_area === null ||
+      userInfoAPI.data.preferred_area === ""
+    ) {
+      dispatch(setOnAdmission(true));
       setTimeout(() => {
         router.push("/(auth)/admission");
         setIsSuccess(false);
       }, 1000);
     } else {
       setTimeout(() => {
+        dispatch(setOnAdmission(false));
         router.push("/(tabs)");
         setIsSuccess(false);
       }, 1000);
@@ -325,6 +335,60 @@ export async function ResetPasswordConfirmAPI(
           router.push("/(auth)/(signin)");
         }, 1000);
       });
+  } catch (error: any) {
+    setIsLoading(false);
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
+
+export async function FinishingAdmissionAPI(
+  preferredArea: any,
+  toast: any,
+  router: any,
+  setIsLoading: any,
+  setIsSuccess: any,
+  setData: any,
+  dispatch: any
+) {
+  try {
+    const accessToken = await getAccessToken();
+    await instance.patch(
+      "api/v1/accounts/me/",
+      {
+        preferred_area: preferredArea,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    setIsLoading(false);
+    setIsSuccess(true);
+    dispatch(setOnAdmission(false));
+    setData({
+      street_3: "",
+      city: "",
+      province: "",
+      region: "",
+    });
+    toast.show("Successfully updated. Thank you!", {
+      type: "success",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+    setTimeout(() => {
+      setIsSuccess(false);
+      router.push("/(tabs)");
+    }, 1000);
   } catch (error: any) {
     setIsLoading(false);
     let error_message = parseError(error);
