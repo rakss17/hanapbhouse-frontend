@@ -13,7 +13,7 @@ const userInfoSlice = createSlice({
   name: "data",
   initialState,
   reducers: {
-    setUserInfo: (state, action: PayloadAction<UserInfoProps>) => {
+    setUserInfo: (state, action: PayloadAction<UserInfoProps | null>) => {
       state.data = action.payload;
     },
   },

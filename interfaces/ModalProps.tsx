@@ -10,5 +10,5 @@ export interface ModalProps {
   headerStyle?: StyleProp<TextStyle>;
   headerContent?: string;
   children?: ReactNode;
-  onCloseRequest: () => void;
+  onCloseRequest?: () => void;
 }

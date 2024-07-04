@@ -40,7 +40,7 @@ export default function Admission() {
       if (!admissionStatus) {
         router.push("/(tabs)");
       }
-    }, [!admissionStatus])
+    }, [])
   );
 
   const handleContinue = () => {
