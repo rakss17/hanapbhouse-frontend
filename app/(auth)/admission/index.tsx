@@ -3,7 +3,6 @@ import { useState, useCallback } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useToast } from "react-native-toast-notifications";
 import { Colors, FontSizes, Viewport, customizeFont } from "@/styles/styles";
-import { CircleShape } from "@/components/CircleShape";
 import { StatusBar } from "expo-status-bar";
 import { FinishingAdmissionAPI } from "@/components/Api";
 import { InputField } from "@/components/InputField";
