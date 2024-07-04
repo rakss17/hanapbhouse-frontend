@@ -222,6 +222,62 @@ export async function SigninAPI(
   }
 }
 
+export async function TokenRevalidation(
+  toast: any,
+  router: any,
+  setIsRestoringSessionLoading: any,
+  setRestoringMessage: any,
+  dispatch: any
+) {
+  setIsRestoringSessionLoading(true);
+  try {
+    const accessToken = await getAccessToken();
+    await instance
+      .post("api/v1/accounts/jwt/verify/", { token: "dadada" })
+      .then(() => {
+        setIsRestoringSessionLoading(false);
+        toast.show("Previous session found.", {
+          type: "success",
+          placement: "top",
+          duration: 3000,
+          animationType: "slide-in",
+        });
+      });
+  } catch (error: any) {
+    const refreshToken = await getRefreshToken();
+    setIsRestoringSessionLoading(true);
+    setRestoringMessage("Renewing session.");
+    await instance
+      .post("api/v1/accounts/jwt/refresh/", { refresh: "dadada" })
+      .then((response) => {
+        setAccessToken(response.data.access);
+        setIsRestoringSessionLoading(false);
+        toast.show("Session renewed.", {
+          type: "success",
+          placement: "top",
+          duration: 3000,
+          animationType: "slide-in",
+        });
+      })
+      .catch(() => {
+        setIsRestoringSessionLoading(false);
+        toast.show("Session expired. Please login again.", {
+          type: "warning",
+          placement: "top",
+          duration: 3000,
+          animationType: "slide-in",
+        });
+        setTimeout(() => {
+          AsyncStorage.clear();
+          dispatch(setUserInfo(null));
+          dispatch(setIsLoggedIn(false));
+          dispatch(setOnAdmission(false));
+          router.push("/(auth)/(signin)");
+        }, 700);
+      });
+  }
+}
+
 export async function ResetPasswordAPI(
   email: any,
   toast: any,
