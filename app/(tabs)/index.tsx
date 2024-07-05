@@ -19,7 +19,6 @@ export default function Index() {
   const userInfo = useSelector((state: RootState) => state.userInfo.data);
   const firstName = userInfo?.first_name;
 
-  // useFocusEffect(
   useEffect(() => {
     async function fetchToken() {
       const token = await getAccessToken();
@@ -29,7 +28,6 @@ export default function Index() {
     }
     fetchToken();
   }, []);
-  // );
 
   useEffect(() => {
     if (accessToken) {
@@ -70,6 +68,7 @@ export default function Index() {
           backgroundColor: Colors.primaryColor2,
           gap: 20,
         }}
+        onCloseRequest={() => {}}
       >
         <View style={{ width: Viewport.width * 0.6, alignItems: "center" }}>
           <ActivityIndicator color={Colors.secondaryColor3} size={80} />

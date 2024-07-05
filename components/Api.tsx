@@ -233,7 +233,7 @@ export async function TokenRevalidation(
   try {
     const accessToken = await getAccessToken();
     await instance
-      .post("api/v1/accounts/jwt/verify/", { token: "dadada" })
+      .post("api/v1/accounts/jwt/verify/", { token: accessToken })
       .then(() => {
         setIsRestoringSessionLoading(false);
         toast.show("Previous session found.", {
@@ -248,7 +248,7 @@ export async function TokenRevalidation(
     setIsRestoringSessionLoading(true);
     setRestoringMessage("Renewing session.");
     await instance
-      .post("api/v1/accounts/jwt/refresh/", { refresh: "dadada" })
+      .post("api/v1/accounts/jwt/refresh/", { refresh: refreshToken })
       .then((response) => {
         setAccessToken(response.data.access);
         setIsRestoringSessionLoading(false);
