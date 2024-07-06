@@ -26,6 +26,7 @@ export const InputField: React.FC<InputFieldProps> = ({
   isFocusPressable,
   onPressableFocus,
   hasSearchIcon,
+  searchIconLeft,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(!!value);
@@ -161,7 +162,7 @@ export const InputField: React.FC<InputFieldProps> = ({
               }
               style={{
                 position: "absolute",
-                left: Viewport.width * 0.07,
+                left: searchIconLeft,
                 zIndex: 5,
               }}
             />
@@ -177,7 +178,7 @@ export const InputField: React.FC<InputFieldProps> = ({
               }
               style={{
                 position: "absolute",
-                left: Viewport.width * 0.07,
+                left: searchIconLeft,
                 zIndex: 5,
               }}
             />
@@ -191,7 +192,7 @@ export const InputField: React.FC<InputFieldProps> = ({
               }
               style={{
                 position: "absolute",
-                left: Viewport.width * 0.07,
+                left: searchIconLeft,
                 zIndex: 5,
               }}
             />
