@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { InputFieldProps } from "@/interfaces/InputFieldProps";
 import Entypo from "@expo/vector-icons/Entypo";
+import Feather from "@expo/vector-icons/Feather";
 import { Colors, FontSizes, Viewport } from "@/styles/styles";
 
 export const InputField: React.FC<InputFieldProps> = ({
@@ -24,6 +25,7 @@ export const InputField: React.FC<InputFieldProps> = ({
   isPressable,
   isFocusPressable,
   onPressableFocus,
+  hasSearchIcon,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(!!value);
@@ -146,7 +148,56 @@ export const InputField: React.FC<InputFieldProps> = ({
           {placeholder}
         </Animated.Text>
       )}
-
+      {hasSearchIcon && (
+        <>
+          {colors?.includes("light") && (
+            <Feather
+              name="search"
+              size={20}
+              color={
+                hasValue || isFocused
+                  ? Colors.secondaryColor1
+                  : Colors.secondaryColor2
+              }
+              style={{
+                position: "absolute",
+                left: Viewport.width * 0.07,
+                zIndex: 5,
+              }}
+            />
+          )}
+          {colors?.includes("dark") && (
+            <Feather
+              name="search"
+              size={20}
+              color={
+                hasValue || isFocused
+                  ? Colors.secondaryColor3
+                  : Colors.secondaryColor4
+              }
+              style={{
+                position: "absolute",
+                left: Viewport.width * 0.07,
+                zIndex: 5,
+              }}
+            />
+          )}
+          {colors?.includes("error") && (
+            <Feather
+              name="search"
+              size={20}
+              color={
+                hasValue || isFocused ? Colors.errorColor : Colors.errorColor
+              }
+              style={{
+                position: "absolute",
+                left: Viewport.width * 0.07,
+                zIndex: 5,
+              }}
+            />
+          )}
+        </>
+      )}
       <TextInput
         ref={inputRef}
         value={value}

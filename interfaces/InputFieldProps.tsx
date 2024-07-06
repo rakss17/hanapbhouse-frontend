@@ -14,4 +14,5 @@ export interface InputFieldProps {
   isPressable?: boolean;
   isFocusPressable?: boolean;
   onPressableFocus?: () => void;
+  hasSearchIcon?: boolean;
 }
