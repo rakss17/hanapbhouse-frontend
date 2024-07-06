@@ -5,6 +5,7 @@ import { Viewport } from "@/styles/styles";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "@/lib/store";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function RootLayout() {
   return (
@@ -14,13 +15,15 @@ export default function RootLayout() {
     >
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <Stack
-            initialRouteName="(auth)"
-            screenOptions={{ headerShown: false }}
-          >
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-          </Stack>
+          <GestureHandlerRootView>
+            <Stack
+              initialRouteName="(auth)"
+              screenOptions={{ headerShown: false }}
+            >
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+            </Stack>
+          </GestureHandlerRootView>
         </PersistGate>
       </Provider>
     </ToastProvider>
