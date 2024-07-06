@@ -10,6 +10,8 @@ export const Colors = {
   primaryColor2: "#F1F0F0",
   primaryColor3: "#FFA800",
   primaryColor4: "#540EEB",
+  primaryDarkModeColor1: "#121212",
+  primaryDarkModeColor2: "#292929",
   secondaryColor1: "#FFFFFF",
   secondaryColor2: "#A7A7A7",
   secondaryColor3: "black",
