@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { setIsDarkMode } from "@/lib/features/statusInfo/statusInfoSlices";
 import { Colors } from "@/styles/styles";
+import { ThemedContainer } from "@/components/ThemedContainer";
 
 export default function Profile() {
   const [isEnabled, setIsEnabled] = useState(false);
@@ -12,14 +13,10 @@ export default function Profile() {
   );
   const dispatch = useDispatch();
   return (
-    <View
+    <ThemedContainer
       style={{
-        flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: isDarkMode
-          ? Colors.primaryDarkModeColor1
-          : Colors.primaryColor2,
       }}
     >
       <Switch
@@ -32,6 +29,6 @@ export default function Profile() {
         }}
         value={isDarkMode}
       />
-    </View>
+    </ThemedContainer>
   );
 }
