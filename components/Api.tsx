@@ -17,8 +17,8 @@ export let serverSideUrl: any;
 export let serverSideMediaUrl: any;
 
 if (debug) {
-  serverSideUrl = "http://192.168.1.17:8000/";
-  serverSideMediaUrl = "http://192.168.1.17:8000/media/";
+  serverSideUrl = "http://192.168.1.12:8000/";
+  serverSideMediaUrl = "http://192.168.1.12:8000/media/";
 }
 
 const instance = axios.create({
@@ -447,6 +447,41 @@ export async function FinishingAdmissionAPI(
     }, 1000);
   } catch (error: any) {
     setIsLoading(false);
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
+
+export async function FetchPublicFeedsAPI(
+  page: number,
+  street_3: string | undefined,
+  city: string | undefined,
+  category: string | undefined,
+  toast: any,
+  setIsLoading: any
+) {
+  try {
+    const accessToken = await getAccessToken();
+    const response = await instance.get("api/v1/feed/public-feed-listing/", {
+      params: {
+        page: page,
+        street_3: street_3,
+        city: city,
+        category: category,
+      },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
     let error_message = parseError(error);
     toast.show(error_message, {
       type: "danger",

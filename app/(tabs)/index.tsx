@@ -5,12 +5,18 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Animated,
+  Image,
+  FlatList,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { CustomizedModal } from "@/components/CustomizedModat";
 import { Colors, FontSizes, Viewport } from "@/styles/styles";
-import { TokenRevalidation, getAccessToken } from "@/components/Api";
+import {
+  FetchPublicFeedsAPI,
+  TokenRevalidation,
+  getAccessToken,
+} from "@/components/Api";
 import { useRouter } from "expo-router";
 import { useToast } from "react-native-toast-notifications";
 import { InputField } from "@/components/InputField";
@@ -19,8 +25,13 @@ import { RadioGroup } from "react-native-radio-buttons-group";
 import { ThemedText } from "@/components/ThemedText";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { ThemedContainer } from "@/components/ThemedContainer";
+import { ExternalLink } from "@/components/ExternalLink";
 
 export default function Index() {
+  const [publicFeedData, setPublicFeedData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(1);
+  const [nextPage, setNextPage] = useState<number | null>(null);
   const [accessToken, setAccessToken] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const toast = useToast();
@@ -36,29 +47,29 @@ export default function Index() {
     (state: RootState) => state.statusInfo.is_dark_mode
   );
   const userInfo = useSelector((state: RootState) => state.userInfo.data);
-  const firstName = userInfo?.first_name;
+  const preferredArea = userInfo?.preferred_area;
 
-  useEffect(() => {
-    async function fetchToken() {
-      const token = await getAccessToken();
-      if (token) {
-        setAccessToken(token);
-      }
-    }
-    fetchToken();
-  }, []);
+  // useEffect(() => {
+  //   async function fetchToken() {
+  //     const token = await getAccessToken();
+  //     if (token) {
+  //       setAccessToken(token);
+  //     }
+  //   }
+  //   fetchToken();
+  // }, []);
 
-  useEffect(() => {
-    if (accessToken) {
-      TokenRevalidation(
-        toast,
-        router,
-        setIsRestoringSessionLoading,
-        setRestoringMessage,
-        dispatch
-      );
-    }
-  }, [accessToken]);
+  // useEffect(() => {
+  //   if (accessToken) {
+  //     TokenRevalidation(
+  //       toast,
+  //       router,
+  //       setIsRestoringSessionLoading,
+  //       setRestoringMessage,
+  //       dispatch
+  //     );
+  //   }
+  // }, [accessToken]);
 
   const translateY = new Animated.Value(0);
 
@@ -112,7 +123,39 @@ export default function Index() {
     ],
     []
   );
+  const loadFeedData = async () => {
+    try {
+      const preferredAreaSplit = preferredArea?.split(", ");
 
+      const street_3 = preferredAreaSplit ? preferredAreaSplit[0] : undefined;
+      const city = preferredAreaSplit ? preferredAreaSplit[1] : undefined;
+
+      setIsLoading(true);
+      const data = await FetchPublicFeedsAPI(
+        page,
+        street_3?.toLowerCase(),
+        city?.toLowerCase(),
+        selectedFilteredCategory,
+        toast,
+        setIsLoading
+      );
+      setPublicFeedData((prevData: any[]) => [...prevData, ...data.feed_data]);
+      setNextPage(data.next_page);
+    } catch (error) {
+      console.error("Error loading feed data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadFeedData();
+  }, [page]);
+  const handleLoadMore = () => {
+    if (nextPage) {
+      setPage(nextPage);
+    }
+  };
   return (
     <>
       <ThemedContainer>
@@ -258,6 +301,59 @@ export default function Index() {
               />
             </Animated.View>
           </PanGestureHandler>
+        )}
+        {publicFeedData.length === 0 ? (
+          <View
+            style={{
+              marginTop: Viewport.height * 0.1,
+              width: Viewport.width * 1,
+              height: Viewport.height * 0.8,
+              alignItems: "center",
+            }}
+          >
+            <ThemedText
+              value="Sorry, there is no available boarding house near you. "
+              style={{ fontSize: FontSizes.small, width: Viewport.width * 0.7 }}
+            />
+            <Image
+              source={require("@/assets/images/no-data-available.png")}
+              resizeMode="contain"
+              style={{
+                width: Viewport.width * 0.7,
+                height: Viewport.height * 0.3,
+              }}
+            />
+            <ExternalLink href="https://www.freepik.com/free-vector/hand-drawn-no-data-concept_55024598.htm#query=no%20data&position=12&from_view=keyword&track=ais_user&uuid=e58b5971-2570-440b-ab33-b584015b2210">
+              <ThemedText
+                style={{
+                  fontSize: FontSizes.tiny,
+                  color: "#0a7ea4",
+                  textDecorationLine: "underline",
+                  textAlign: "right",
+                  width: Viewport.width * 1,
+                }}
+                value="Image by pikisuperstar on Freepik"
+              />
+            </ExternalLink>
+          </View>
+        ) : (
+          <>
+            {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+            <FlatList
+              data={publicFeedData}
+              keyExtractor={(item: any) => item.id}
+              renderItem={(item: any) => (
+                <View style={{ marginBottom: 20 }}>
+                  {/* <Text>{item.title}</Text> */}
+                  <Text>{item.content}</Text>
+                  <Text>{item.timestamp}</Text>
+                </View>
+              )}
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.5}
+              // listFooterComponent={isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+            />
+          </>
         )}
       </ThemedContainer>
       <CustomizedModal
