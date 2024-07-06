@@ -5,6 +5,11 @@ import {
   SigninDataProps,
   SignupDataProps,
 } from "@/interfaces/AuthDataProps";
+import { setUserInfo } from "@/lib/features/userInfo/userInfoSlices";
+import {
+  setIsLoggedIn,
+  setOnAdmission,
+} from "@/lib/features/statusInfo/statusInfoSlices";
 
 const debug = true;
 
@@ -142,30 +147,54 @@ export async function SigninAPI(
   setIsLoading: any,
   router: any,
   setIsSuccess: any,
-  setIsError: any
+  setIsError: any,
+  dispatch: any
 ) {
   setIsLoading(true);
 
   try {
-    await instance
-      .post("api/v1/accounts/jwt/create/", data)
-      .then((response) => {
-        setAccessToken(response.data.access);
-        setRefreshToken(response.data.refresh);
-        setIsLoading(false);
-        setIsSuccess(true);
-        setIsError(false);
-        toast.show("Successfully login!", {
-          type: "success",
-          placement: "top",
-          duration: 6000,
-          animationType: "slide-in",
-        });
-        setTimeout(() => {
-          router.push("/(tabs)");
-          setIsSuccess(false);
-        }, 1000);
-      });
+    const signInResponse = await instance.post(
+      "api/v1/accounts/jwt/create/",
+      data
+    );
+
+    const userInfoAPI = await instance.get("api/v1/accounts/me/", {
+      headers: {
+        Authorization: `Bearer ${signInResponse.data.access}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    dispatch(setUserInfo(userInfoAPI.data));
+    dispatch(setIsLoggedIn(true));
+    setAccessToken(signInResponse.data.access);
+    setRefreshToken(signInResponse.data.refresh);
+
+    setIsLoading(false);
+    setIsSuccess(true);
+    setIsError(false);
+    if (
+      userInfoAPI.data.preferred_area === null ||
+      userInfoAPI.data.preferred_area === ""
+    ) {
+      dispatch(setOnAdmission(true));
+      setTimeout(() => {
+        router.push("/(auth)/admission");
+        setIsSuccess(false);
+      }, 1000);
+    } else {
+      setTimeout(() => {
+        dispatch(setOnAdmission(false));
+        router.push("/(tabs)");
+        setIsSuccess(false);
+      }, 1000);
+    }
+    toast.show("Successfully login!", {
+      type: "success",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
   } catch (error: any) {
     setIsLoading(false);
     let error_message = parseError(error);
@@ -190,6 +219,62 @@ export async function SigninAPI(
         animationType: "slide-in",
       });
     }
+  }
+}
+
+export async function TokenRevalidation(
+  toast: any,
+  router: any,
+  setIsRestoringSessionLoading: any,
+  setRestoringMessage: any,
+  dispatch: any
+) {
+  setIsRestoringSessionLoading(true);
+  try {
+    const accessToken = await getAccessToken();
+    await instance
+      .post("api/v1/accounts/jwt/verify/", { token: accessToken })
+      .then(() => {
+        setIsRestoringSessionLoading(false);
+        toast.show("Previous session found.", {
+          type: "success",
+          placement: "top",
+          duration: 3000,
+          animationType: "slide-in",
+        });
+      });
+  } catch (error: any) {
+    const refreshToken = await getRefreshToken();
+    setIsRestoringSessionLoading(true);
+    setRestoringMessage("Renewing session.");
+    await instance
+      .post("api/v1/accounts/jwt/refresh/", { refresh: refreshToken })
+      .then((response) => {
+        setAccessToken(response.data.access);
+        setIsRestoringSessionLoading(false);
+        toast.show("Session renewed.", {
+          type: "success",
+          placement: "top",
+          duration: 3000,
+          animationType: "slide-in",
+        });
+      })
+      .catch(() => {
+        setIsRestoringSessionLoading(false);
+        toast.show("Session expired. Please login again.", {
+          type: "warning",
+          placement: "top",
+          duration: 3000,
+          animationType: "slide-in",
+        });
+        setTimeout(() => {
+          AsyncStorage.clear();
+          dispatch(setUserInfo(null));
+          dispatch(setIsLoggedIn(false));
+          dispatch(setOnAdmission(false));
+          router.push("/(auth)/(signin)");
+        }, 700);
+      });
   }
 }
 
@@ -306,6 +391,60 @@ export async function ResetPasswordConfirmAPI(
           router.push("/(auth)/(signin)");
         }, 1000);
       });
+  } catch (error: any) {
+    setIsLoading(false);
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
+
+export async function FinishingAdmissionAPI(
+  preferredArea: any,
+  toast: any,
+  router: any,
+  setIsLoading: any,
+  setIsSuccess: any,
+  setData: any,
+  dispatch: any
+) {
+  try {
+    const accessToken = await getAccessToken();
+    await instance.patch(
+      "api/v1/accounts/me/",
+      {
+        preferred_area: preferredArea,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    setIsLoading(false);
+    setIsSuccess(true);
+    dispatch(setOnAdmission(false));
+    setData({
+      street_3: "",
+      city: "",
+      province: "",
+      region: "",
+    });
+    toast.show("Successfully updated. Thank you!", {
+      type: "success",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+    setTimeout(() => {
+      setIsSuccess(false);
+      router.push("/(tabs)");
+    }, 1000);
   } catch (error: any) {
     setIsLoading(false);
     let error_message = parseError(error);

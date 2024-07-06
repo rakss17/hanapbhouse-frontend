@@ -1,7 +1,7 @@
 import { Text, View, Image } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useEffect, useState } from "react";
-import { Link, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import { Link, useFocusEffect, useRouter } from "expo-router";
 import { LinearGradientBG } from "@/components/LinearGradientBG";
 import {
   customizeFont,
@@ -13,13 +13,22 @@ import {
 import { InputField } from "@/components/InputField";
 import { Button } from "@/components/Button";
 import { useToast } from "react-native-toast-notifications";
+import { useDispatch, useSelector } from "react-redux";
 import { ResetPasswordAPI, SigninAPI } from "@/components/Api";
 import { CustomizedModal } from "@/components/CustomizedModat";
+import { RootState } from "@/lib/store";
 
 export default function Signin() {
+  const loginStatusInfo = useSelector(
+    (state: RootState) => state.statusInfo.is_logged_in
+  );
+  const admissionStatus = useSelector(
+    (state: RootState) => state.statusInfo.on_admission
+  );
   const fontLoaded = customizeFont();
   const toast = useToast();
   const router = useRouter();
+  const dispatch = useDispatch();
   const [isForgotPasswordPressed, setIsForgotPasswordPressed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -33,8 +42,28 @@ export default function Signin() {
     password: "",
   });
 
+  useFocusEffect(
+    useCallback(() => {
+      setTimeout(() => {
+        if (loginStatusInfo && !admissionStatus) {
+          router.push("/(tabs)");
+        } else if (loginStatusInfo && admissionStatus) {
+          router.push("/(auth)/admission");
+        }
+      }, 100);
+    }, [])
+  );
+
   const handleSignin = () => {
-    SigninAPI(data, toast, setIsLoading, router, setIsSuccess, setIsError);
+    SigninAPI(
+      data,
+      toast,
+      setIsLoading,
+      router,
+      setIsSuccess,
+      setIsError,
+      dispatch
+    );
   };
   useEffect(() => {
     let validationErrors: { [key: string]: string } = {};
@@ -223,6 +252,9 @@ export default function Signin() {
       <CustomizedModal
         visible={isForgotPasswordPressed}
         animationType="fade"
+        onCloseRequest={() => {
+          setIsForgotPasswordPressed(false);
+        }}
         transparent={true}
         hasHeader={true}
         headerContent="Forgot Password?"

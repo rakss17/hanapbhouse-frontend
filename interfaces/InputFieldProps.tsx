@@ -10,4 +10,8 @@ export interface InputFieldProps {
   floatingPlaceHolder?: boolean;
   keyboardType?: KeyboardTypeOptions;
   colors?: ("dark" | "light" | "error" | "light-error" | "dark-error")[];
+  showSoftInputOnFocus?: boolean;
+  isPressable?: boolean;
+  isFocusPressable?: boolean;
+  onPressableFocus?: () => void;
 }
