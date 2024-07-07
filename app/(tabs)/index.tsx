@@ -15,7 +15,8 @@ import { Colors, FontSizes, Viewport } from "@/styles/styles";
 import {
   FetchPublicFeedsAPI,
   TokenRevalidation,
-  getAccessToken,
+  serverSideMediaUrl,
+  serverSideUrl,
 } from "@/components/Api";
 import { useRouter } from "expo-router";
 import { useToast } from "react-native-toast-notifications";
@@ -26,13 +27,15 @@ import { ThemedText } from "@/components/ThemedText";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { ThemedContainer } from "@/components/ThemedContainer";
 import { ExternalLink } from "@/components/ExternalLink";
+import Entypo from "@expo/vector-icons/Entypo";
 
 export default function Index() {
   const [publicFeedData, setPublicFeedData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isUserSessionValidated, setIsUserSessionValidated] =
+    useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [nextPage, setNextPage] = useState<number | null>(null);
-  const [accessToken, setAccessToken] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const toast = useToast();
   const router = useRouter();
@@ -48,28 +51,24 @@ export default function Index() {
   );
   const userInfo = useSelector((state: RootState) => state.userInfo.data);
   const preferredArea = userInfo?.preferred_area;
+  const loginInfo = useSelector(
+    (state: RootState) => state.statusInfo.is_logged_in
+  );
 
-  // useEffect(() => {
-  //   async function fetchToken() {
-  //     const token = await getAccessToken();
-  //     if (token) {
-  //       setAccessToken(token);
-  //     }
-  //   }
-  //   fetchToken();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (accessToken) {
-  //     TokenRevalidation(
-  //       toast,
-  //       router,
-  //       setIsRestoringSessionLoading,
-  //       setRestoringMessage,
-  //       dispatch
-  //     );
-  //   }
-  // }, [accessToken]);
+  useEffect(() => {
+    if (loginInfo) {
+      (async () => {
+        const response = await TokenRevalidation(
+          toast,
+          router,
+          setIsRestoringSessionLoading,
+          setRestoringMessage,
+          dispatch
+        );
+        setIsUserSessionValidated(response);
+      })();
+    }
+  }, [loginInfo]);
 
   const translateY = new Animated.Value(0);
 
@@ -123,6 +122,7 @@ export default function Index() {
     ],
     []
   );
+
   const loadFeedData = async () => {
     try {
       const preferredAreaSplit = preferredArea?.split(", ");
@@ -139,7 +139,14 @@ export default function Index() {
         toast,
         setIsLoading
       );
-      setPublicFeedData((prevData: any[]) => [...prevData, ...data.feed_data]);
+
+      setPublicFeedData((prevData) => [
+        ...prevData,
+        ...data.feed_data.filter(
+          (item: any) =>
+            !prevData.some((existingItem) => existingItem.id === item.id)
+        ),
+      ]);
       setNextPage(data.next_page);
     } catch (error) {
       console.error("Error loading feed data:", error);
@@ -150,12 +157,14 @@ export default function Index() {
 
   useEffect(() => {
     loadFeedData();
-  }, [page]);
+  }, [page, isUserSessionValidated]);
+
   const handleLoadMore = () => {
     if (nextPage) {
       setPage(nextPage);
     }
   };
+
   return (
     <>
       <ThemedContainer>
@@ -342,12 +351,74 @@ export default function Index() {
             <FlatList
               data={publicFeedData}
               keyExtractor={(item: any) => item.id}
-              renderItem={(item: any) => (
-                <View style={{ marginBottom: 20 }}>
-                  {/* <Text>{item.title}</Text> */}
-                  <Text>{item.content}</Text>
-                  <Text>{item.timestamp}</Text>
-                </View>
+              contentContainerStyle={{
+                marginTop: Viewport.height * 0.02,
+                width: Viewport.width * 1,
+                height: Viewport.height * 1,
+                alignItems: "center",
+              }}
+              renderItem={({ item }: any) => (
+                <TouchableOpacity
+                  style={{
+                    width: Viewport.width * 0.9,
+                    height: Viewport.height * 0.2,
+                    flexDirection: "row",
+                    backgroundColor: isDarkMode
+                      ? Colors.primaryDarkModeColor2
+                      : Colors.secondaryColor1,
+                    borderRadius: 20,
+                    elevation: 5,
+                    shadowColor: "#000", // For iOS shadow
+                    shadowOffset: { width: 0, height: 2 }, // For iOS shadow
+                    shadowOpacity: 0.25, // For iOS shadow
+                    shadowRadius: 3.84, // For iOS shadow
+                  }}
+                >
+                  <Image
+                    source={{ uri: `${serverSideMediaUrl}${item.image}` }}
+                    resizeMode="stretch"
+                    style={{
+                      width: Viewport.width * 0.45,
+                      height: Viewport.height * 0.2,
+                      borderTopLeftRadius: 20,
+                      borderBottomLeftRadius: 20,
+                    }}
+                  />
+                  <View
+                    style={{
+                      paddingLeft: 10,
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      gap: 20,
+                    }}
+                  >
+                    <ThemedText
+                      style={{ fontWeight: "bold", fontSize: FontSizes.small }}
+                      value={item.content.type}
+                    />
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        width: Viewport.width * 0.4,
+                      }}
+                    >
+                      <Entypo name="location-pin" size={24} color="red" />
+                      <ThemedText
+                        style={{
+                          width: Viewport.width * 0.37,
+                        }}
+                        value={`${item.content.address.street_3}, ${item.content.address.city}`}
+                      />
+                    </View>
+
+                    <View>
+                      <ThemedText
+                        style={{}}
+                        value={`PHP ${item.content.rent} / Month`}
+                      />
+                    </View>
+                  </View>
+                </TouchableOpacity>
               )}
               onEndReached={handleLoadMore}
               onEndReachedThreshold={0.5}

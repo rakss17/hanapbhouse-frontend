@@ -18,7 +18,7 @@ export let serverSideMediaUrl: any;
 
 if (debug) {
   serverSideUrl = "http://192.168.1.12:8000/";
-  serverSideMediaUrl = "http://192.168.1.12:8000/media/";
+  serverSideMediaUrl = "http://192.168.1.12:8000";
 }
 
 const instance = axios.create({
@@ -243,39 +243,42 @@ export async function TokenRevalidation(
           animationType: "slide-in",
         });
       });
+    return true;
   } catch (error: any) {
     const refreshToken = await getRefreshToken();
     setIsRestoringSessionLoading(true);
     setRestoringMessage("Renewing session.");
-    await instance
-      .post("api/v1/accounts/jwt/refresh/", { refresh: refreshToken })
-      .then((response) => {
-        setAccessToken(response.data.access);
-        setIsRestoringSessionLoading(false);
-        toast.show("Session renewed.", {
-          type: "success",
-          placement: "top",
-          duration: 3000,
-          animationType: "slide-in",
-        });
-      })
-      .catch(() => {
-        setIsRestoringSessionLoading(false);
-        toast.show("Session expired. Please login again.", {
-          type: "warning",
-          placement: "top",
-          duration: 3000,
-          animationType: "slide-in",
-        });
-        setTimeout(() => {
-          AsyncStorage.clear();
-          dispatch(setUserInfo(null));
-          dispatch(setIsLoggedIn(false));
-          dispatch(setOnAdmission(false));
-          router.push("/(auth)/(signin)");
-        }, 700);
+    try {
+      const response = await instance.post("api/v1/accounts/jwt/refresh/", {
+        refresh: refreshToken,
       });
+      await setAccessToken(response.data.access);
+      setIsRestoringSessionLoading(false);
+      toast.show("Session renewed.", {
+        type: "success",
+        placement: "top",
+        duration: 3000,
+        animationType: "slide-in",
+      });
+      return true;
+    } catch (refreshError) {
+      setIsRestoringSessionLoading(false);
+      toast.show("Session expired. Please login again.", {
+        type: "warning",
+        placement: "top",
+        duration: 3000,
+        animationType: "slide-in",
+      });
+      setTimeout(() => {
+        AsyncStorage.clear();
+        dispatch(setUserInfo(null));
+        dispatch(setIsLoggedIn(false));
+        dispatch(setOnAdmission(false));
+        router.push("/(auth)/(signin)");
+      }, 700);
+    }
   }
+  return false;
 }
 
 export async function ResetPasswordAPI(
@@ -479,7 +482,7 @@ export async function FetchPublicFeedsAPI(
         "Content-Type": "application/json",
       },
     });
-    console.log(response.data);
+
     return response.data;
   } catch (error) {
     let error_message = parseError(error);
