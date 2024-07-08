@@ -464,8 +464,9 @@ export async function FetchPublicFeedsAPI(
   city: string | undefined,
   category: string | undefined,
   toast: any,
-  setIsLoading: any
+  setPublicFeedData: any
 ) {
+  setPublicFeedData([]);
   try {
     const accessToken = await getAccessToken();
     const response = await instance.get("api/v1/feed/public-feed-listing/", {

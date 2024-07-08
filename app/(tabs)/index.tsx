@@ -43,7 +43,9 @@ export default function Index() {
     useState(false);
   const [isFilterationQueryPressed, setIsFilterationQueryPressed] =
     useState(false);
-  const [selectedFilteredCategory, setSelectedFilteredCategory] = useState("");
+  const [selectedFilteredCategory, setSelectedFilteredCategory] =
+    useState("All");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("1");
   const [restoringMessage, setRestoringMessage] = useState("");
   const isDarkMode = useSelector(
     (state: RootState) => state.statusInfo.is_dark_mode
@@ -136,8 +138,9 @@ export default function Index() {
         city?.toLowerCase(),
         selectedFilteredCategory,
         toast,
-        setIsLoading
+        setPublicFeedData
       );
+
       setPublicFeedData((prevData) => [
         ...prevData,
         ...data.feed_data.filter(
@@ -145,6 +148,7 @@ export default function Index() {
             !prevData.some((existingItem) => existingItem.id === item.id)
         ),
       ]);
+
       setNextPage(data.next_page);
     } catch (error) {
       console.error("Error loading feed data:", error);
@@ -155,7 +159,7 @@ export default function Index() {
   useFocusEffect(
     useCallback(() => {
       loadFeedData();
-    }, [page, isUserSessionValidated])
+    }, [page, isUserSessionValidated, selectedFilteredCategory])
   );
   const handleLoadMore = () => {
     if (nextPage) {
@@ -284,9 +288,17 @@ export default function Index() {
                   }}
                   radioButtons={radioButtons}
                   onPress={(selectedId) => {
-                    setSelectedFilteredCategory(selectedId);
+                    setSelectedCategoryId(selectedId);
+                    const selectedRadioButton = radioButtons.find(
+                      (radioButton) => radioButton.id === selectedId
+                    );
+                    if (selectedRadioButton) {
+                      setSelectedFilteredCategory(selectedRadioButton.label);
+                    } else {
+                      console.error("Selected radio button not found");
+                    }
                   }}
-                  selectedId={selectedFilteredCategory}
+                  selectedId={selectedCategoryId}
                   layout="row"
                 />
               </View>
@@ -318,34 +330,42 @@ export default function Index() {
               alignItems: "center",
             }}
           >
-            <ThemedText
-              value="Sorry, there is no available boarding house near you. "
-              style={{ fontSize: FontSizes.small, width: Viewport.width * 0.7 }}
-            />
-            <Image
-              source={require("@/assets/images/no-data-available.png")}
-              resizeMode="contain"
-              style={{
-                width: Viewport.width * 0.7,
-                height: Viewport.height * 0.3,
-              }}
-            />
-            <ExternalLink href="https://www.freepik.com/free-vector/hand-drawn-no-data-concept_55024598.htm#query=no%20data&position=12&from_view=keyword&track=ais_user&uuid=e58b5971-2570-440b-ab33-b584015b2210">
-              <ThemedText
-                style={{
-                  fontSize: FontSizes.tiny,
-                  color: "#0a7ea4",
-                  textDecorationLine: "underline",
-                  textAlign: "right",
-                  width: Viewport.width * 1,
-                }}
-                value="Image by pikisuperstar on Freepik"
-              />
-            </ExternalLink>
+            {isLoading ? (
+              <ActivityIndicator size={50} color={Colors.secondaryColor3} />
+            ) : (
+              <>
+                <ThemedText
+                  value="Sorry, there is no available boarding house near you. "
+                  style={{
+                    fontSize: FontSizes.small,
+                    width: Viewport.width * 0.7,
+                  }}
+                />
+                <Image
+                  source={require("@/assets/images/no-data-available.png")}
+                  resizeMode="contain"
+                  style={{
+                    width: Viewport.width * 0.7,
+                    height: Viewport.height * 0.3,
+                  }}
+                />
+                <ExternalLink href="https://www.freepik.com/free-vector/hand-drawn-no-data-concept_55024598.htm#query=no%20data&position=12&from_view=keyword&track=ais_user&uuid=e58b5971-2570-440b-ab33-b584015b2210">
+                  <ThemedText
+                    style={{
+                      fontSize: FontSizes.tiny,
+                      color: "#0a7ea4",
+                      textDecorationLine: "underline",
+                      textAlign: "right",
+                      width: Viewport.width * 1,
+                    }}
+                    value="Image by pikisuperstar on Freepik"
+                  />
+                </ExternalLink>
+              </>
+            )}
           </View>
         ) : (
           <>
-            {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
             <FlatList
               data={publicFeedData}
               keyExtractor={(item: any) => item.id}
