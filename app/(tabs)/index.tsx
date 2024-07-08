@@ -367,7 +367,12 @@ export default function Index() {
             }}
           >
             {isLoading ? (
-              <ActivityIndicator size={50} color={Colors.secondaryColor3} />
+              <ActivityIndicator
+                size={50}
+                color={
+                  isDarkMode ? Colors.secondaryColor1 : Colors.secondaryColor3
+                }
+              />
             ) : (
               <>
                 <ThemedText
@@ -408,9 +413,9 @@ export default function Index() {
               contentContainerStyle={{
                 marginTop: Viewport.height * 0.02,
                 width: Viewport.width * 1,
-                height: Viewport.height * 1,
                 alignItems: "center",
                 gap: 20,
+                paddingBottom: Viewport.height * 0.05,
               }}
               renderItem={({ item }: any) => (
                 <TouchableOpacity
@@ -490,8 +495,21 @@ export default function Index() {
                 </TouchableOpacity>
               )}
               onEndReached={handleLoadMore}
-              onEndReachedThreshold={0.5}
-              // listFooterComponent={isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+              onEndReachedThreshold={0.2}
+              ListFooterComponent={
+                <>
+                  {isLoading && (
+                    <ActivityIndicator
+                      size={35}
+                      color={
+                        isDarkMode
+                          ? Colors.secondaryColor1
+                          : Colors.secondaryColor3
+                      }
+                    />
+                  )}
+                </>
+              }
             />
           </>
         )}
