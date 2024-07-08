@@ -7,8 +7,8 @@ import {
   Easing,
 } from "react-native";
 import { InputFieldProps } from "@/interfaces/InputFieldProps";
-import Entypo from "@expo/vector-icons/Entypo";
-import Feather from "@expo/vector-icons/Feather";
+import { Entypo, EvilIcons } from "@expo/vector-icons";
+
 import { Colors, FontSizes, Viewport } from "@/styles/styles";
 
 export const InputField: React.FC<InputFieldProps> = ({
@@ -152,9 +152,9 @@ export const InputField: React.FC<InputFieldProps> = ({
       {hasSearchIcon && (
         <>
           {colors?.includes("light") && (
-            <Feather
-              name="search"
-              size={20}
+            <EvilIcons
+              name="location"
+              size={25}
               color={
                 hasValue || isFocused
                   ? Colors.secondaryColor1
@@ -168,9 +168,9 @@ export const InputField: React.FC<InputFieldProps> = ({
             />
           )}
           {colors?.includes("dark") && (
-            <Feather
-              name="search"
-              size={20}
+            <EvilIcons
+              name="location"
+              size={25}
               color={
                 hasValue || isFocused
                   ? Colors.secondaryColor3
@@ -184,9 +184,9 @@ export const InputField: React.FC<InputFieldProps> = ({
             />
           )}
           {colors?.includes("error") && (
-            <Feather
-              name="search"
-              size={20}
+            <EvilIcons
+              name="location"
+              size={25}
               color={
                 hasValue || isFocused ? Colors.errorColor : Colors.errorColor
               }
