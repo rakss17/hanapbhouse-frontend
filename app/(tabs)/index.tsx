@@ -14,9 +14,7 @@ import { CustomizedModal } from "@/components/CustomizedModat";
 import { Colors, FontSizes, Viewport } from "@/styles/styles";
 import {
   FetchPublicFeedsAPI,
-  IsFeedSavedAPI,
   TokenRevalidation,
-  serverSideMediaUrl,
   serverSideUrl,
 } from "@/components/Api";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -32,7 +30,6 @@ import { Fontisto, Entypo } from "@expo/vector-icons";
 
 export default function Index() {
   const [publicFeedData, setPublicFeedData] = useState<any[]>([]);
-  const [savedFeedIds, setSavedFeedIds] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isUserSessionValidated, setIsUserSessionValidated] =
     useState<boolean>(false);
@@ -166,34 +163,6 @@ export default function Index() {
     }
   };
 
-  const checkIfFeedsAreSaved = async () => {
-    setIsLoading(true);
-    const feedIds = publicFeedData.map((feed: any) => feed.id);
-    console.log("feed id", feedIds);
-    try {
-      const response = await IsFeedSavedAPI(feedIds, toast, setIsLoading);
-      setSavedFeedIds((prevData) => [
-        ...prevData,
-        ...response.ids.filter(
-          (item: any) =>
-            !prevData.some((existingItem) => existingItem.id === item.id)
-        ),
-      ]);
-    } catch (error) {
-      console.error("Error checking saved feeds:", error);
-    }
-  };
-  useFocusEffect(
-    useCallback(() => {
-      checkIfFeedsAreSaved();
-    }, [publicFeedData])
-  );
-  const idExists = (id: any) => {
-    const savedFeedIdsSet = new Set(savedFeedIds);
-    return savedFeedIdsSet.has(id);
-  };
-
-  console.log(publicFeedData);
   return (
     <>
       <ThemedContainer>
@@ -405,7 +374,7 @@ export default function Index() {
                   }}
                 >
                   <Image
-                    source={{ uri: `${serverSideMediaUrl}${item.image}` }}
+                    source={{ uri: `${serverSideUrl}${item.image}` }}
                     resizeMode="stretch"
                     style={{
                       width: Viewport.width * 0.45,
