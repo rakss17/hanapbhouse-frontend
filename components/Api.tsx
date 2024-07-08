@@ -494,3 +494,65 @@ export async function FetchPublicFeedsAPI(
     });
   }
 }
+
+export async function FetchSavedFeedsAPI(
+  page: number,
+  toast: any,
+  setIsLoading: any
+) {
+  try {
+    const accessToken = await getAccessToken();
+    const response = await instance.get(
+      "api/v1/feed/saved-feed-creation-listing/",
+      {
+        params: {
+          page: page,
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
+
+export async function IsFeedSavedAPI(ids: any, toast: any, setIsLoading: any) {
+  setIsLoading(true); // Show loading indicator
+  try {
+    console.log("id", ids);
+    const accessToken = await getAccessToken(); // Ensure this function returns a valid access token
+    // Convert array of IDs to a comma-separated string
+    const idsParam = ids.join(", ");
+    console.log("idsParam", idsParam);
+    const response = await instance.get("api/v1/feed/is-feed-saved/", {
+      params: { ids: idsParam },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    setIsLoading(false); // Hide loading indicator after the request completes
+    return response.data; // Return the response data
+  } catch (error) {
+    setIsLoading(false); // Ensure loading indicator is hidden even on error
+    let errorMessage = parseError(error); // Ensure this function properly handles errors
+    toast.show(errorMessage, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}

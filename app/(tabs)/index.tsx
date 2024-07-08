@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   Text,
   View,
@@ -14,11 +14,12 @@ import { CustomizedModal } from "@/components/CustomizedModat";
 import { Colors, FontSizes, Viewport } from "@/styles/styles";
 import {
   FetchPublicFeedsAPI,
+  IsFeedSavedAPI,
   TokenRevalidation,
   serverSideMediaUrl,
   serverSideUrl,
 } from "@/components/Api";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useToast } from "react-native-toast-notifications";
 import { InputField } from "@/components/InputField";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -27,10 +28,11 @@ import { ThemedText } from "@/components/ThemedText";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { ThemedContainer } from "@/components/ThemedContainer";
 import { ExternalLink } from "@/components/ExternalLink";
-import Entypo from "@expo/vector-icons/Entypo";
+import { Fontisto, Entypo } from "@expo/vector-icons";
 
 export default function Index() {
   const [publicFeedData, setPublicFeedData] = useState<any[]>([]);
+  const [savedFeedIds, setSavedFeedIds] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isUserSessionValidated, setIsUserSessionValidated] =
     useState<boolean>(false);
@@ -139,7 +141,6 @@ export default function Index() {
         toast,
         setIsLoading
       );
-
       setPublicFeedData((prevData) => [
         ...prevData,
         ...data.feed_data.filter(
@@ -154,17 +155,45 @@ export default function Index() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadFeedData();
-  }, [page, isUserSessionValidated]);
-
+  useFocusEffect(
+    useCallback(() => {
+      loadFeedData();
+    }, [page, isUserSessionValidated])
+  );
   const handleLoadMore = () => {
     if (nextPage) {
       setPage(nextPage);
     }
   };
 
+  const checkIfFeedsAreSaved = async () => {
+    setIsLoading(true);
+    const feedIds = publicFeedData.map((feed: any) => feed.id);
+    console.log("feed id", feedIds);
+    try {
+      const response = await IsFeedSavedAPI(feedIds, toast, setIsLoading);
+      setSavedFeedIds((prevData) => [
+        ...prevData,
+        ...response.ids.filter(
+          (item: any) =>
+            !prevData.some((existingItem) => existingItem.id === item.id)
+        ),
+      ]);
+    } catch (error) {
+      console.error("Error checking saved feeds:", error);
+    }
+  };
+  useFocusEffect(
+    useCallback(() => {
+      checkIfFeedsAreSaved();
+    }, [publicFeedData])
+  );
+  const idExists = (id: any) => {
+    const savedFeedIdsSet = new Set(savedFeedIds);
+    return savedFeedIdsSet.has(id);
+  };
+
+  console.log(publicFeedData);
   return (
     <>
       <ThemedContainer>
@@ -356,6 +385,7 @@ export default function Index() {
                 width: Viewport.width * 1,
                 height: Viewport.height * 1,
                 alignItems: "center",
+                gap: 20,
               }}
               renderItem={({ item }: any) => (
                 <TouchableOpacity
@@ -406,16 +436,30 @@ export default function Index() {
                       <ThemedText
                         style={{
                           width: Viewport.width * 0.37,
+                          fontSize: FontSizes.tiny,
                         }}
                         value={`${item.content.address.street_3}, ${item.content.address.city}`}
                       />
                     </View>
 
-                    <View>
+                    <View style={{ flexDirection: "row", gap: 20 }}>
                       <ThemedText
-                        style={{}}
+                        style={{ fontSize: FontSizes.tiny }}
                         value={`PHP ${item.content.rent} / Month`}
                       />
+                      {item.is_saved ? (
+                        <Fontisto
+                          name="favorite"
+                          size={24}
+                          color={Colors.primaryColor1}
+                        />
+                      ) : (
+                        <Fontisto
+                          name="favorite"
+                          size={24}
+                          color={Colors.secondaryColor2}
+                        />
+                      )}
                     </View>
                   </View>
                 </TouchableOpacity>
