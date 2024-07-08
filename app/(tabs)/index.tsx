@@ -35,7 +35,8 @@ export default function Index() {
     useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [nextPage, setNextPage] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchBarangayQuery, setSearchBarangayQuery] = useState("");
+  const [searchCityQuery, setSearchCityQuery] = useState("");
   const toast = useToast();
   const router = useRouter();
   const dispatch = useDispatch();
@@ -134,8 +135,8 @@ export default function Index() {
       setIsLoading(true);
       const data = await FetchPublicFeedsAPI(
         page,
-        street_3?.toLowerCase(),
-        city?.toLowerCase(),
+        searchBarangayQuery ? searchBarangayQuery : street_3?.toLowerCase(),
+        searchCityQuery ? searchCityQuery : city?.toLowerCase(),
         selectedFilteredCategory,
         toast,
         setPublicFeedData
@@ -159,7 +160,13 @@ export default function Index() {
   useFocusEffect(
     useCallback(() => {
       loadFeedData();
-    }, [page, isUserSessionValidated, selectedFilteredCategory])
+    }, [
+      page,
+      isUserSessionValidated,
+      selectedFilteredCategory,
+      searchBarangayQuery,
+      searchCityQuery,
+    ])
   );
   const handleLoadMore = () => {
     if (nextPage) {
@@ -186,37 +193,66 @@ export default function Index() {
             zIndex: 1,
           }}
         >
-          <InputField
-            value={searchQuery}
-            placeholder="Search by barangay and city"
-            onChangeText={(value) => setSearchQuery(value)}
-            style={{
-              width: Viewport.width * 0.8,
-              height: Viewport.height * 0.05,
-              backgroundColor: isDarkMode
-                ? Colors.primaryDarkModeColor2
-                : isFilterationQueryPressed
-                ? Colors.primaryColor2
-                : Colors.secondaryColor1,
-              paddingLeft: 35,
-              marginLeft: isFilterationQueryPressed
-                ? Viewport.width * 0.1
-                : Viewport.width * 0.05,
-              borderRadius: 15,
-              elevation: 5,
-              shadowColor: "#000", // For iOS shadow
-              shadowOffset: { width: 0, height: 2 }, // For iOS shadow
-              shadowOpacity: 0.25, // For iOS shadow
-              shadowRadius: 3.84, // For iOS shadow
-            }}
-            searchIconLeft={
-              isFilterationQueryPressed
-                ? Viewport.width * 0.13
-                : Viewport.width * 0.07
-            }
-            hasSearchIcon={true}
-            colors={isDarkMode ? ["light"] : ["dark"]}
-          />
+          <View style={{ flexDirection: "row" }}>
+            <InputField
+              value={searchBarangayQuery}
+              placeholder="Barangay"
+              onChangeText={(value) => setSearchBarangayQuery(value)}
+              style={{
+                width: Viewport.width * 0.4,
+                height: Viewport.height * 0.05,
+                backgroundColor: isDarkMode
+                  ? Colors.primaryDarkModeColor2
+                  : isFilterationQueryPressed
+                  ? Colors.primaryColor2
+                  : Colors.secondaryColor1,
+                paddingLeft: 35,
+                marginLeft: isFilterationQueryPressed
+                  ? Viewport.width * 0.1
+                  : Viewport.width * 0.05,
+                borderRadius: 15,
+                elevation: 5,
+                shadowColor: "#000", // For iOS shadow
+                shadowOffset: { width: 0, height: 2 }, // For iOS shadow
+                shadowOpacity: 0.25, // For iOS shadow
+                shadowRadius: 3.84, // For iOS shadow
+              }}
+              searchIconLeft={
+                isFilterationQueryPressed
+                  ? Viewport.width * 0.12
+                  : Viewport.width * 0.07
+              }
+              hasSearchIcon={true}
+              colors={isDarkMode ? ["light"] : ["dark"]}
+            />
+
+            <InputField
+              value={searchCityQuery}
+              placeholder="City"
+              onChangeText={(value) => setSearchCityQuery(value)}
+              style={{
+                width: Viewport.width * 0.4,
+                height: Viewport.height * 0.05,
+                backgroundColor: isDarkMode
+                  ? Colors.primaryDarkModeColor2
+                  : isFilterationQueryPressed
+                  ? Colors.primaryColor2
+                  : Colors.secondaryColor1,
+                paddingLeft: 15,
+                marginLeft: isFilterationQueryPressed
+                  ? Viewport.width * 0.01
+                  : Viewport.width * 0.01,
+                borderRadius: 15,
+                elevation: 5,
+                shadowColor: "#000", // For iOS shadow
+                shadowOffset: { width: 0, height: 2 }, // For iOS shadow
+                shadowOpacity: 0.25, // For iOS shadow
+                shadowRadius: 3.84, // For iOS shadow
+              }}
+              colors={isDarkMode ? ["light"] : ["dark"]}
+            />
+          </View>
+
           {!isFilterationQueryPressed && (
             <TouchableOpacity
               onPress={() => {
