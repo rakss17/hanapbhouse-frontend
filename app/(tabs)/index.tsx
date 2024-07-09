@@ -26,7 +26,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { ThemedContainer } from "@/components/ThemedContainer";
 import { ExternalLink } from "@/components/ExternalLink";
-import { Fontisto, Entypo } from "@expo/vector-icons";
+import { Fontisto, Entypo, Feather } from "@expo/vector-icons";
 
 export default function Index() {
   const [publicFeedData, setPublicFeedData] = useState<any[]>([]);
@@ -207,9 +207,7 @@ export default function Index() {
                   ? Colors.primaryColor2
                   : Colors.secondaryColor1,
                 paddingLeft: 35,
-                marginLeft: isFilterationQueryPressed
-                  ? Viewport.width * 0.1
-                  : Viewport.width * 0.05,
+                marginLeft: Viewport.width * 0.05,
                 borderRadius: 15,
                 elevation: 5,
                 shadowColor: "#000", // For iOS shadow
@@ -217,11 +215,7 @@ export default function Index() {
                 shadowOpacity: 0.25, // For iOS shadow
                 shadowRadius: 3.84, // For iOS shadow
               }}
-              searchIconLeft={
-                isFilterationQueryPressed
-                  ? Viewport.width * 0.12
-                  : Viewport.width * 0.07
-              }
+              searchIconLeft={Viewport.width * 0.07}
               hasSearchIcon={true}
               colors={isDarkMode ? ["light"] : ["dark"]}
             />
@@ -239,9 +233,7 @@ export default function Index() {
                   ? Colors.primaryColor2
                   : Colors.secondaryColor1,
                 paddingLeft: 15,
-                marginLeft: isFilterationQueryPressed
-                  ? Viewport.width * 0.01
-                  : Viewport.width * 0.01,
+                marginLeft: Viewport.width * 0.01,
                 borderRadius: 15,
                 elevation: 5,
                 shadowColor: "#000", // For iOS shadow
@@ -253,33 +245,35 @@ export default function Index() {
             />
           </View>
 
-          {!isFilterationQueryPressed && (
-            <TouchableOpacity
-              onPress={() => {
-                setIsFilterationQueryPressed((previousState) => {
-                  const newState = !previousState;
-                  if (newState) {
-                    Animated.spring(translateY, {
-                      toValue: 100,
-                      useNativeDriver: true,
-                    }).start();
-                  } else {
-                    Animated.spring(translateY, {
-                      toValue: 100,
-                      useNativeDriver: true,
-                    }).start();
-                  }
-                  return newState;
-                });
-              }}
-            >
+          <TouchableOpacity
+            onPress={() => {
+              setIsFilterationQueryPressed((previousState) => {
+                const newState = !previousState;
+                if (newState) {
+                  Animated.spring(translateY, {
+                    toValue: 100,
+                    useNativeDriver: true,
+                  }).start();
+                } else {
+                  Animated.spring(translateY, {
+                    toValue: 100,
+                    useNativeDriver: true,
+                  }).start();
+                }
+                return newState;
+              });
+            }}
+          >
+            {isFilterationQueryPressed ? (
               <FontAwesome
                 name="filter"
-                size={35}
+                size={30}
                 color={Colors.primaryColor1}
               />
-            </TouchableOpacity>
-          )}
+            ) : (
+              <Feather name="filter" size={30} color={Colors.primaryColor1} />
+            )}
+          </TouchableOpacity>
         </View>
         {isFilterationQueryPressed && (
           <PanGestureHandler
