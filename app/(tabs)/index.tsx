@@ -7,6 +7,7 @@ import {
   Animated,
   Image,
   FlatList,
+  RefreshControl,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
@@ -31,6 +32,7 @@ import { Fontisto, Entypo, Feather } from "@expo/vector-icons";
 export default function Index() {
   const [publicFeedData, setPublicFeedData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [isUserSessionValidated, setIsUserSessionValidated] =
     useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
@@ -53,6 +55,10 @@ export default function Index() {
   );
   const userInfo = useSelector((state: RootState) => state.userInfo.data);
   const preferredArea = userInfo?.preferred_area;
+  const preferredAreaSplit = preferredArea?.split(", ");
+
+  const street_3 = preferredAreaSplit ? preferredAreaSplit[0] : undefined;
+  const city = preferredAreaSplit ? preferredAreaSplit[1] : undefined;
   const loginInfo = useSelector(
     (state: RootState) => state.statusInfo.is_logged_in
   );
@@ -124,14 +130,49 @@ export default function Index() {
     ],
     []
   );
+  const onRefresh = useCallback(async () => {
+    setPublicFeedData([]);
+    setPage(1);
+    setRefreshing(true);
+    setIsLoading(true);
+    setSearchBarangayQuery("");
+    setSearchCityQuery("");
+    setSelectedCategoryId("1");
+    setSelectedFilteredCategory("All");
+    try {
+      const data = await FetchPublicFeedsAPI(
+        page,
+        searchBarangayQuery ? searchBarangayQuery : street_3?.toLowerCase(),
+        searchCityQuery ? searchCityQuery : city?.toLowerCase(),
+        selectedFilteredCategory,
+        toast
+      );
+
+      if (data.feed_data && data.feed_data.length > 0) {
+        setRefreshing(false);
+        setIsLoading(false);
+        setPublicFeedData((prevData) => [
+          ...prevData,
+          ...data.feed_data.filter(
+            (item: any) =>
+              !prevData.some((existingItem) => existingItem.id === item.id)
+          ),
+        ]);
+
+        setNextPage(data.next_page);
+      }
+    } catch (error) {
+      setRefreshing(false);
+      setIsLoading(true);
+      console.error("Error loading feed data:", error);
+    } finally {
+      setRefreshing(false);
+      setIsLoading(false);
+    }
+  }, []);
 
   const loadFeedData = async () => {
     try {
-      const preferredAreaSplit = preferredArea?.split(", ");
-
-      const street_3 = preferredAreaSplit ? preferredAreaSplit[0] : undefined;
-      const city = preferredAreaSplit ? preferredAreaSplit[1] : undefined;
-
       setIsLoading(true);
       const data = await FetchPublicFeedsAPI(
         page,
@@ -418,6 +459,9 @@ export default function Index() {
           <>
             <FlatList
               data={publicFeedData}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
               keyExtractor={(item: any) => item.id}
               contentContainerStyle={{
                 marginTop: Viewport.height * 0.02,
