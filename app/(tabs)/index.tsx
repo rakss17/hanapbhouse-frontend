@@ -138,28 +138,32 @@ export default function Index() {
         searchBarangayQuery ? searchBarangayQuery : street_3?.toLowerCase(),
         searchCityQuery ? searchCityQuery : city?.toLowerCase(),
         selectedFilteredCategory,
-        toast,
-        setPublicFeedData
+        toast
       );
 
-      setPublicFeedData((prevData) => [
-        ...prevData,
-        ...data.feed_data.filter(
-          (item: any) =>
-            !prevData.some((existingItem) => existingItem.id === item.id)
-        ),
-      ]);
+      if (data.feed_data && data.feed_data.length > 0) {
+        setPublicFeedData((prevData) => [
+          ...prevData,
+          ...data.feed_data.filter(
+            (item: any) =>
+              !prevData.some((existingItem) => existingItem.id === item.id)
+          ),
+        ]);
 
-      setNextPage(data.next_page);
+        setNextPage(data.next_page);
+      }
     } catch (error) {
       console.error("Error loading feed data:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
   useFocusEffect(
     useCallback(() => {
-      loadFeedData();
+      if (isUserSessionValidated) {
+        loadFeedData();
+      }
     }, [
       page,
       isUserSessionValidated,
@@ -168,6 +172,7 @@ export default function Index() {
       searchCityQuery,
     ])
   );
+
   const handleLoadMore = () => {
     if (nextPage) {
       setPage(nextPage);
@@ -197,7 +202,11 @@ export default function Index() {
             <InputField
               value={searchBarangayQuery}
               placeholder="Barangay"
-              onChangeText={(value) => setSearchBarangayQuery(value)}
+              onChangeText={(value) => {
+                setSearchBarangayQuery(value);
+                setPage(1);
+                setPublicFeedData([]);
+              }}
               style={{
                 width: Viewport.width * 0.4,
                 height: Viewport.height * 0.05,
@@ -223,7 +232,11 @@ export default function Index() {
             <InputField
               value={searchCityQuery}
               placeholder="City"
-              onChangeText={(value) => setSearchCityQuery(value)}
+              onChangeText={(value) => {
+                setSearchCityQuery(value);
+                setPage(1);
+                setPublicFeedData([]);
+              }}
               style={{
                 width: Viewport.width * 0.4,
                 height: Viewport.height * 0.05,
@@ -323,6 +336,8 @@ export default function Index() {
                       (radioButton) => radioButton.id === selectedId
                     );
                     if (selectedRadioButton) {
+                      setPage(1);
+                      setPublicFeedData([]);
                       setSelectedFilteredCategory(selectedRadioButton.label);
                     } else {
                       console.error("Selected radio button not found");
@@ -429,7 +444,11 @@ export default function Index() {
                   }}
                 >
                   <Image
-                    source={{ uri: `${serverSideUrl}${item.image}` }}
+                    source={
+                      item.image
+                        ? { uri: `${serverSideUrl}${item.image}` }
+                        : require("@/assets/images/no_image_found.jpg")
+                    }
                     resizeMode="stretch"
                     style={{
                       width: Viewport.width * 0.45,
@@ -456,10 +475,10 @@ export default function Index() {
                         width: Viewport.width * 0.4,
                       }}
                     >
-                      <Entypo name="location-pin" size={24} color="red" />
+                      <Entypo name="location-pin" size={15} color="red" />
                       <ThemedText
                         style={{
-                          width: Viewport.width * 0.37,
+                          width: Viewport.width * 0.35,
                           fontSize: FontSizes.tiny,
                         }}
                         value={`${item.content.address.street_3}, ${item.content.address.city}`}
