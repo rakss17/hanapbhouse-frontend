@@ -16,7 +16,7 @@ const debug = true;
 export let serverSideUrl: any;
 
 if (debug) {
-  serverSideUrl = "http://192.168.1.12:8000/";
+  serverSideUrl = "http://192.168.95.188:8000/";
 }
 
 const instance = axios.create({
@@ -163,7 +163,6 @@ export async function SigninAPI(
       },
     });
 
-    dispatch(setUserInfo(userInfoAPI.data));
     dispatch(setIsLoggedIn(true));
     setAccessToken(signInResponse.data.access);
     setRefreshToken(signInResponse.data.refresh);
@@ -182,6 +181,7 @@ export async function SigninAPI(
       }, 1000);
     } else {
       setTimeout(() => {
+        dispatch(setUserInfo(userInfoAPI.data));
         dispatch(setOnAdmission(false));
         router.push("/(tabs)");
         setIsSuccess(false);
@@ -415,7 +415,7 @@ export async function FinishingAdmissionAPI(
 ) {
   try {
     const accessToken = await getAccessToken();
-    await instance.patch(
+    const userInfoAPI = await instance.patch(
       "api/v1/accounts/me/",
       {
         preferred_area: preferredArea,
@@ -427,6 +427,7 @@ export async function FinishingAdmissionAPI(
         },
       }
     );
+    dispatch(setUserInfo(userInfoAPI.data));
     setIsLoading(false);
     setIsSuccess(true);
     dispatch(setOnAdmission(false));
@@ -463,24 +464,19 @@ export async function FetchPublicFeedsAPI(
   street_3: string | undefined,
   city: string | undefined,
   category: string | undefined,
-  toast: any,
-  setPublicFeedData: any
+  toast: any
 ) {
-  setPublicFeedData([]);
   try {
     const accessToken = await getAccessToken();
-    const response = await instance.get("api/v1/feed/public-feed-listing/", {
-      params: {
-        page: page,
-        street_3: street_3,
-        city: city,
-        category: category,
-      },
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await instance.get(
+      `api/v1/feed/public-feed-listing/?page=${page}&street_3=${street_3}&city=${city}&category=${category}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     return response.data;
   } catch (error) {
