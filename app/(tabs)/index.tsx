@@ -28,9 +28,10 @@ import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { ThemedContainer } from "@/components/ThemedContainer";
 import { ExternalLink } from "@/components/ExternalLink";
 import { Fontisto, Entypo, Feather } from "@expo/vector-icons";
+import { PropertyDetails } from "@/interfaces/PropertyDetailsProps";
 
 export default function Index() {
-  const [publicFeedData, setPublicFeedData] = useState<any[]>([]);
+  const [publicFeedData, setPublicFeedData] = useState<PropertyDetails[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [isUserSessionValidated, setIsUserSessionValidated] =
@@ -485,6 +486,14 @@ export default function Index() {
                     shadowOffset: { width: 0, height: 2 }, // For iOS shadow
                     shadowOpacity: 0.25, // For iOS shadow
                     shadowRadius: 3.84, // For iOS shadow
+                  }}
+                  onPress={() => {
+                    router.push({
+                      pathname: `/property_details`,
+                      params: {
+                        item: encodeURIComponent(JSON.stringify(item)),
+                      },
+                    });
                   }}
                 >
                   <Image
