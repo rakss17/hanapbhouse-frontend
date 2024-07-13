@@ -21,12 +21,17 @@ import {
   FontAwesome,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 
 export default function Details() {
   const router = useRouter();
   const toast = useToast();
   const params = useLocalSearchParams<any>();
   const data = JSON.parse(decodeURIComponent(params.item));
+  const isDarkMode = useSelector(
+    (state: RootState) => state.statusInfo.is_dark_mode
+  );
   const replacedStringInclusion = data.content?.inclusion?.replaceAll(
     ", ",
     " | "
@@ -114,17 +119,21 @@ export default function Details() {
             }}
           >
             {data.is_saved ? (
-              <Fontisto
-                name="favorite"
-                size={35}
-                color={Colors.primaryColor1}
-              />
+              <TouchableOpacity>
+                <Fontisto
+                  name="favorite"
+                  size={35}
+                  color={Colors.primaryColor1}
+                />
+              </TouchableOpacity>
             ) : (
-              <Fontisto
-                name="favorite"
-                size={35}
-                color={Colors.secondaryColor2}
-              />
+              <TouchableOpacity>
+                <Fontisto
+                  name="favorite"
+                  size={35}
+                  color={Colors.secondaryColor2}
+                />
+              </TouchableOpacity>
             )}
           </View>
           <View
@@ -262,7 +271,7 @@ export default function Details() {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                width: Viewport.width * 0.5,
+                width: Viewport.width * 0.52,
                 justifyContent: "space-between",
               }}
             >
@@ -335,7 +344,9 @@ export default function Details() {
           >
             <TouchableOpacity
               style={{
-                backgroundColor: Colors.secondaryColor1,
+                backgroundColor: isDarkMode
+                  ? Colors.primaryDarkModeColor2
+                  : Colors.secondaryColor1,
                 height: Viewport.height * 0.06,
                 width: Viewport.width * 0.55,
                 paddingLeft: Viewport.width * 0.05,
