@@ -16,7 +16,7 @@ const debug = true;
 export let serverSideUrl: any;
 
 if (debug) {
-  serverSideUrl = "http://192.168.95.188:8000/";
+  serverSideUrl = "http://192.168.1.12:8000/";
 }
 
 const instance = axios.create({

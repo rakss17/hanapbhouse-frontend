@@ -20,7 +20,9 @@ export interface PropertyDetails {
   inclusion: string;
   landlord: string;
   landlord_fullname: string;
-  number_of_vacant: number;
+  landlord_contactnumber: string;
+  number_of_vacant_male: number;
+  number_of_vacant_female: number;
   rent: any;
   type: string;
   image: any;
