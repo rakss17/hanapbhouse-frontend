@@ -23,10 +23,20 @@ import {
 } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
+import * as Location from "expo-location";
+import { MapRenderer } from "@/components/MapRenderer";
+import { LocationProps } from "@/interfaces/MapRendererProps";
 
 export default function Details() {
   const router = useRouter();
   const toast = useToast();
+
+  const [propertyLocation, setPropertyLocation] = useState<LocationProps>({
+    latitude: 0,
+    longitude: 0,
+  });
+  const [isShowLocationPressed, setIsShowLocationPressed] =
+    useState<boolean>(false);
   const params = useLocalSearchParams<any>();
   const data = JSON.parse(decodeURIComponent(params.item));
   const isDarkMode = useSelector(
@@ -36,6 +46,55 @@ export default function Details() {
     ", ",
     " | "
   );
+
+  const handleShowLocation = async () => {
+    let currentPermission = await Location.getForegroundPermissionsAsync();
+    if (currentPermission.status === "granted") {
+      setPropertyLocation({
+        ...propertyLocation,
+        latitude: parseFloat(data.content.coordinates.latitude),
+        longitude: parseFloat(data.content.coordinates.longitude),
+      });
+      setIsShowLocationPressed(true);
+    } else {
+      let requestPermission =
+        await Location.requestForegroundPermissionsAsync();
+      if (requestPermission.status === "granted") {
+        setPropertyLocation({
+          ...propertyLocation,
+          latitude: parseFloat(data.content.coordinates.latitude),
+          longitude: parseFloat(data.content.coordinates.longitude),
+        });
+        setIsShowLocationPressed(true);
+      } else {
+        if (
+          !currentPermission.canAskAgain &&
+          currentPermission.status === "denied"
+        ) {
+          toast.show(
+            "Permission to access location was denied. Please enable it in your device settings. Your device settings will be open shortly.",
+            {
+              type: "danger",
+              placement: "top",
+              duration: 5000,
+              animationType: "slide-in",
+            }
+          );
+          setTimeout(() => {
+            Linking.openSettings();
+          }, 5000);
+        } else {
+          toast.show("Permission to access location was denied.", {
+            type: "danger",
+            placement: "top",
+            duration: 5000,
+            animationType: "slide-in",
+          });
+        }
+      }
+    }
+  };
+
   return (
     <>
       <StatusBar style="light" />
@@ -192,6 +251,7 @@ export default function Details() {
                   width: Viewport.width * 0.18,
                   borderRadius: 20,
                 }}
+                onPress={handleShowLocation}
               >
                 <Text
                   style={{
@@ -402,6 +462,11 @@ export default function Details() {
           </View>
         </View>
       </ThemedContainer>
+      <MapRenderer
+        isShowLocationPressed={isShowLocationPressed}
+        setIsShowLocationPressed={setIsShowLocationPressed}
+        propertyLocation={propertyLocation}
+      />
     </>
   );
 }
