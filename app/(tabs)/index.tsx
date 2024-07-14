@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import { CustomizedModal } from "@/components/CustomizedModat";
+import { CustomizedModal } from "@/components/CustomizedModal";
 import { Colors, FontSizes, Viewport } from "@/styles/styles";
 import {
   FetchPublicFeedsAPI,
@@ -595,6 +595,8 @@ export default function Index() {
           borderRadius: 25,
           backgroundColor: Colors.primaryColor2,
           gap: 20,
+          paddingTop: Viewport.height * 0.03,
+          paddingLeft: Viewport.width * 0.08,
         }}
         onCloseRequest={() => {}}
       >

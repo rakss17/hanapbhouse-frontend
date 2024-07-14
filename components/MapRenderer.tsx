@@ -1,5 +1,5 @@
 import { LocationProps, MapRendererProps } from "@/interfaces/MapRendererProps";
-import { CustomizedModal } from "./CustomizedModat";
+import { CustomizedModal } from "./CustomizedModal";
 import { useEffect, useState } from "react";
 import { Colors, Viewport } from "@/styles/styles";
 import MapView, { UrlTile, Marker, Callout } from "react-native-maps";

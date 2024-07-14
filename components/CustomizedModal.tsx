@@ -47,15 +47,7 @@ export const CustomizedModal: React.FC<ModalProps> = ({
           justifyContent: "center",
         }}
       >
-        <View
-          style={[
-            viewStyle,
-            {
-              paddingTop: Viewport.height * 0.03,
-              paddingLeft: Viewport.width * 0.08,
-            },
-          ]}
-        >
+        <View style={viewStyle}>
           {hasHeader && <Text style={[headerStyle]}>{headerContent}</Text>}
           {children}
         </View>

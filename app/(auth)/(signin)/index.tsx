@@ -15,7 +15,7 @@ import { Button } from "@/components/Button";
 import { useToast } from "react-native-toast-notifications";
 import { useDispatch, useSelector } from "react-redux";
 import { ResetPasswordAPI, SigninAPI } from "@/components/Api";
-import { CustomizedModal } from "@/components/CustomizedModat";
+import { CustomizedModal } from "@/components/CustomizedModal";
 import { RootState } from "@/lib/store";
 
 export default function Signin() {
