@@ -26,17 +26,18 @@ import { RootState } from "@/lib/store";
 import * as Location from "expo-location";
 import { MapRenderer } from "@/components/MapRenderer";
 import { LocationProps } from "@/interfaces/MapRendererProps";
+import { Button } from "@/components/Button";
 
 export default function Details() {
   const router = useRouter();
   const toast = useToast();
-
   const [propertyLocation, setPropertyLocation] = useState<LocationProps>({
     latitude: 0,
     longitude: 0,
   });
   const [isShowLocationPressed, setIsShowLocationPressed] =
     useState<boolean>(false);
+  const [isMapRendering, setIsMapRendering] = useState<boolean>(false);
   const params = useLocalSearchParams<any>();
   const data = JSON.parse(decodeURIComponent(params.item));
   const isDarkMode = useSelector(
@@ -48,6 +49,7 @@ export default function Details() {
   );
 
   const handleShowLocation = async () => {
+    setIsMapRendering(true);
     let currentPermission = await Location.getForegroundPermissionsAsync();
     if (currentPermission.status === "granted") {
       setPropertyLocation({
@@ -126,6 +128,11 @@ export default function Details() {
                 alignItems: "center",
                 justifyContent: "center",
                 borderRadius: 50,
+                elevation: 5,
+                shadowColor: "#000", // For iOS shadow
+                shadowOffset: { width: 0, height: 2 }, // For iOS shadow
+                shadowOpacity: 0.25, // For iOS shadow
+                shadowRadius: 3.84, // For iOS shadow
               }}
               onPress={() => {
                 router.back();
@@ -141,6 +148,11 @@ export default function Details() {
                 alignItems: "center",
                 justifyContent: "center",
                 borderRadius: 50,
+                elevation: 5,
+                shadowColor: "#000", // For iOS shadow
+                shadowOffset: { width: 0, height: 2 }, // For iOS shadow
+                shadowOpacity: 0.25, // For iOS shadow
+                shadowRadius: 3.84, // For iOS shadow
               }}
               onPress={() => {
                 router.back();
@@ -241,15 +253,26 @@ export default function Details() {
                   data.content.address.city
                 }`}
               />
-              <TouchableOpacity
-                style={{
-                  backgroundColor: Colors.primaryColor1,
+              <Button
+                buttonStyle={{
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "center",
                   height: Viewport.height * 0.05,
                   width: Viewport.width * 0.18,
                   borderRadius: 20,
+                  backgroundColor: isMapRendering
+                    ? Colors.secondaryColor4
+                    : Colors.primaryColor1,
+                }}
+                isLoading={isMapRendering}
+                disabled={isMapRendering ? true : false}
+                loadingText=""
+                loadingColor="white"
+                loadingSize={25}
+                textStyle={{
+                  color: Colors.secondaryColor1,
+                  fontSize: FontSizes.small,
                 }}
                 onPress={handleShowLocation}
               >
@@ -264,7 +287,7 @@ export default function Details() {
                   Show
                 </Text>
                 <Entypo name="location-pin" size={20} color="red" />
-              </TouchableOpacity>
+              </Button>
             </View>
           </View>
           <View>
@@ -466,6 +489,8 @@ export default function Details() {
         isShowLocationPressed={isShowLocationPressed}
         setIsShowLocationPressed={setIsShowLocationPressed}
         propertyLocation={propertyLocation}
+        isMapRendering={isMapRendering}
+        setIsMapRendering={setIsMapRendering}
       />
     </>
   );

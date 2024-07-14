@@ -9,4 +9,6 @@ export interface MapRendererProps {
   isShowLocationPressed: boolean;
   setIsShowLocationPressed: any;
   propertyLocation: LocationProps;
+  isMapRendering: boolean;
+  setIsMapRendering: any;
 }

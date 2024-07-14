@@ -2,19 +2,23 @@ import { LocationProps, MapRendererProps } from "@/interfaces/MapRendererProps";
 import { CustomizedModal } from "./CustomizedModal";
 import { useEffect, useState } from "react";
 import { Colors, Viewport } from "@/styles/styles";
-import MapView, { UrlTile, Marker, Callout } from "react-native-maps";
-import { Image, Text, View } from "react-native";
+import MapView, { UrlTile, Marker } from "react-native-maps";
+import { Image, View, TouchableOpacity } from "react-native";
 import * as Location from "expo-location";
+import { AntDesign } from "@expo/vector-icons";
 
 export const MapRenderer: React.FC<MapRendererProps> = ({
   isShowLocationPressed,
   setIsShowLocationPressed,
   propertyLocation,
+  isMapRendering,
+  setIsMapRendering,
 }) => {
   const [userLocation, setUserLocation] = useState<LocationProps>({
     latitude: 0,
     longitude: 0,
   });
+
   useEffect(() => {
     const getCurrentLocation = async () => {
       const currentLocation: any = await Location.getCurrentPositionAsync({});
@@ -26,6 +30,12 @@ export const MapRenderer: React.FC<MapRendererProps> = ({
     };
     getCurrentLocation();
   }, []);
+
+  useEffect(() => {
+    if (isMapRendering) {
+      setIsMapRendering(false);
+    }
+  }, [isMapRendering]);
 
   // METER DISTANCE BETWEEN USER AND PROPERTY LOCATION USING HARVERSINE FORMULA
   const getDistanceInMeters = (lat1: any, lon1: any, lat2: any, lon2: any) => {
@@ -99,12 +109,44 @@ export const MapRenderer: React.FC<MapRendererProps> = ({
           width: Viewport.width * 1,
           height: Viewport.height * 1,
           backgroundColor: Colors.primaryColor2,
-          alignItems: "center",
-          justifyContent: "center",
           paddingTop: 0,
           paddingLeft: 0,
+          position: "relative",
         }}
       >
+        <View
+          style={{
+            width: Viewport.width * 1,
+            height: Viewport.height * 0.075,
+            position: "absolute",
+            zIndex: 1,
+            alignItems: "flex-end",
+            flexDirection: "row",
+            justifyContent: "flex-start",
+            paddingLeft: Viewport.width * 0.055,
+          }}
+        >
+          <TouchableOpacity
+            style={{
+              height: Viewport.height * 0.06,
+              width: Viewport.width * 0.12,
+              backgroundColor: Colors.secondaryColor4,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 50,
+              elevation: 5,
+              shadowColor: "#000", // For iOS shadow
+              shadowOffset: { width: 0, height: 2 }, // For iOS shadow
+              shadowOpacity: 0.25, // For iOS shadow
+              shadowRadius: 3.84, // For iOS shadow
+            }}
+            onPress={() => {
+              setIsShowLocationPressed(false);
+            }}
+          >
+            <AntDesign name="arrowleft" size={30} color="white" />
+          </TouchableOpacity>
+        </View>
         <MapView
           style={{
             height: Viewport.height * 1,
