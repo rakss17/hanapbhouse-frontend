@@ -8,7 +8,7 @@ import { FinishingAdmissionAPI } from "@/components/Api";
 import { InputField } from "@/components/InputField";
 import { Button } from "@/components/Button";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { CustomizedModal } from "@/components/CustomizedModat";
+import { CustomizedModal } from "@/components/CustomizedModal";
 import phPlaces from "@/assets/ph_places/data.json";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
