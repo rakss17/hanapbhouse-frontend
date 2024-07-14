@@ -593,7 +593,6 @@ export default function Index() {
           width: Viewport.width * 0.78,
           height: Viewport.height * 0.25,
           borderRadius: 25,
-          backgroundColor: Colors.primaryColor2,
           gap: 20,
           paddingTop: Viewport.height * 0.03,
           paddingLeft: Viewport.width * 0.08,
@@ -601,8 +600,14 @@ export default function Index() {
         onCloseRequest={() => {}}
       >
         <View style={{ width: Viewport.width * 0.6, alignItems: "center" }}>
-          <ActivityIndicator color={Colors.secondaryColor3} size={80} />
-          <Text style={{ fontSize: FontSizes.small }}>Please wait...</Text>
+          <ActivityIndicator
+            color={isDarkMode ? Colors.secondaryColor1 : Colors.secondaryColor3}
+            size={80}
+          />
+          <ThemedText
+            style={{ fontSize: FontSizes.small }}
+            value="Please wait..."
+          />
         </View>
       </CustomizedModal>
     </>

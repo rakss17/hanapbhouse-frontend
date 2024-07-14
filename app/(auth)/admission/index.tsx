@@ -596,7 +596,6 @@ export default function Admission() {
           width: Viewport.width * 0.85,
           height: Viewport.height * 0.42,
           borderRadius: 25,
-          backgroundColor: Colors.primaryColor2,
           gap: 10,
         }}
       >
