@@ -20,22 +20,24 @@ export const MapRenderer: React.FC<MapRendererProps> = ({
   });
 
   useEffect(() => {
-    const getCurrentLocation = async () => {
-      const currentLocation: any = await Location.getCurrentPositionAsync({});
-      setUserLocation({
-        ...userLocation,
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-      });
-    };
-    getCurrentLocation();
-  }, []);
+    if (isShowLocationPressed) {
+      const getCurrentLocation = async () => {
+        const currentLocation: any = await Location.getCurrentPositionAsync({});
+        setUserLocation({
+          ...userLocation,
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+        });
+      };
+      getCurrentLocation();
+    }
+  }, [isShowLocationPressed]);
 
   useEffect(() => {
-    if (isMapRendering) {
+    if (isMapRendering && isShowLocationPressed) {
       setIsMapRendering(false);
     }
-  }, [isMapRendering]);
+  }, [isMapRendering, isShowLocationPressed]);
 
   // METER DISTANCE BETWEEN USER AND PROPERTY LOCATION USING HARVERSINE FORMULA
   const getDistanceInMeters = (lat1: any, lon1: any, lat2: any, lon2: any) => {
@@ -188,7 +190,6 @@ export const MapRenderer: React.FC<MapRendererProps> = ({
             }}
             title="You are here"
           >
-            {/* <Text style={{ textAlign: "center" }}>You are here</Text> */}
             <Image
               source={require("@/assets/images/user_location_marker.png")}
               style={{ width: 58, height: 58 }}
@@ -200,9 +201,8 @@ export const MapRenderer: React.FC<MapRendererProps> = ({
               latitude: propertyLocation.latitude,
               longitude: propertyLocation.longitude,
             }}
-            title="You are here"
+            title="Boarding house"
           >
-            {/* <Text style={{ textAlign: "center" }}>You are here</Text> */}
             <Image
               source={require("@/assets/images/property_location_marker.png")}
               style={{ width: 58, height: 58 }}

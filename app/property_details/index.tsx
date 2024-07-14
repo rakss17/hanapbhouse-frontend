@@ -52,6 +52,7 @@ export default function Details() {
     setIsMapRendering(true);
     let currentPermission = await Location.getForegroundPermissionsAsync();
     if (currentPermission.status === "granted") {
+      setIsMapRendering(true);
       setPropertyLocation({
         ...propertyLocation,
         latitude: parseFloat(data.content.coordinates.latitude),
@@ -62,6 +63,7 @@ export default function Details() {
       let requestPermission =
         await Location.requestForegroundPermissionsAsync();
       if (requestPermission.status === "granted") {
+        setIsMapRendering(true);
         setPropertyLocation({
           ...propertyLocation,
           latitude: parseFloat(data.content.coordinates.latitude),
