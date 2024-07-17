@@ -14,7 +14,23 @@ export interface Coordinates {
   longitude: any;
 }
 
-export interface PropertyDetails {
+export interface Property {
+  id: string;
+  description: string;
+  inclusion: string;
+  landlord: string;
+  landlord_fullname: string;
+  landlord_contactnumber: string;
+  number_of_vacant_male: number;
+  number_of_vacant_female: number;
+  rent: any;
+  type: string;
+  is_available: boolean;
+  address: Address;
+  coordinates: Coordinates;
+}
+
+export interface PublicFeedData {
   id: string;
   description: string;
   inclusion: string;
@@ -32,6 +48,19 @@ export interface PropertyDetails {
   timestamp: string;
   is_available: boolean;
   is_saved: boolean;
+  saved_feed_id: string;
   address: Address;
   coordinates: Coordinates;
+}
+
+export interface PropertyDetail {
+  id: string;
+  content: Property;
+  owner: string;
+  owner_fullname: string;
+  owner_image: any;
+  is_saved: boolean;
+  saved_feed_id: string;
+  timestamp: string;
+  image: any;
 }

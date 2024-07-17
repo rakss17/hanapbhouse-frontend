@@ -16,7 +16,7 @@ const debug = true;
 export let serverSideUrl: any;
 
 if (debug) {
-  serverSideUrl = "http://192.168.1.12:8000/";
+  serverSideUrl = "http://192.168.77.188:8000/";
 }
 
 const instance = axios.create({
@@ -490,11 +490,7 @@ export async function FetchPublicFeedsAPI(
   }
 }
 
-export async function FetchSavedFeedsAPI(
-  page: number,
-  toast: any,
-  setIsLoading: any
-) {
+export async function FetchSavedFeedsAPI(page: number, toast: any) {
   try {
     const accessToken = await getAccessToken();
     const response = await instance.get(
@@ -512,6 +508,87 @@ export async function FetchSavedFeedsAPI(
 
     return response.data;
   } catch (error) {
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
+
+export async function SaveFeedAPI(
+  feedId: any,
+  toast: any,
+  setIsLoading: any,
+  setPropertyDetail: any
+) {
+  setIsLoading(true);
+  try {
+    const accessToken = await getAccessToken();
+    await instance
+      .post(
+        "api/v1/feed/saved-feed-creation-listing/",
+        {
+          feed_id: feedId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        setIsLoading(false);
+        setPropertyDetail((prevData: any) => ({
+          ...prevData,
+          is_saved: response.data.is_saved,
+          saved_feed_id: response.data.saved_feed_id,
+        }));
+      });
+  } catch (error: any) {
+    setIsLoading(false);
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
+
+export async function UnsaveFeedAPI(
+  feedId: any,
+  toast: any,
+  setIsLoading: any,
+  setPropertyDetail: any
+) {
+  setIsLoading(true);
+  try {
+    const accessToken = await getAccessToken();
+    await instance
+      .delete(
+        `api/v1/feed/unsaved-feed/${feedId}/`,
+
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then(() => {
+        setIsLoading(false);
+        setPropertyDetail((prevData: any) => ({
+          ...prevData,
+          is_saved: false,
+        }));
+      });
+  } catch (error: any) {
+    setIsLoading(false);
     let error_message = parseError(error);
     toast.show(error_message, {
       type: "danger",

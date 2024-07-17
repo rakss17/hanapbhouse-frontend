@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { serverSideUrl } from "@/components/Api";
+import { SaveFeedAPI, serverSideUrl, UnsaveFeedAPI } from "@/components/Api";
 import { ThemedContainer } from "@/components/ThemedContainer";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors, FontSizes, Viewport } from "@/styles/styles";
@@ -13,6 +13,7 @@ import {
   View,
   Platform,
   Linking,
+  ActivityIndicator,
 } from "react-native";
 import {
   AntDesign,
@@ -27,8 +28,10 @@ import * as Location from "expo-location";
 import { MapRenderer } from "@/components/MapRenderer";
 import { LocationProps } from "@/interfaces/MapRendererProps";
 import { Button } from "@/components/Button";
+import { PropertyDetail } from "@/interfaces/PropertyDetailsProps";
 
 export default function Details() {
+  const [propertyDetail, setPropertyDetail] = useState<PropertyDetail>();
   const router = useRouter();
   const toast = useToast();
   const [propertyLocation, setPropertyLocation] = useState<LocationProps>({
@@ -37,16 +40,22 @@ export default function Details() {
   });
   const [isShowLocationPressed, setIsShowLocationPressed] =
     useState<boolean>(false);
+  const [isSaveLoading, setIsSaveLoading] = useState<boolean>(false);
+  const [isUnsaveLoading, setIsUnsaveLoading] = useState<boolean>(false);
   const [isMapRendering, setIsMapRendering] = useState<boolean>(false);
   const params = useLocalSearchParams<any>();
   const data = JSON.parse(decodeURIComponent(params.item));
   const isDarkMode = useSelector(
     (state: RootState) => state.statusInfo.is_dark_mode
   );
-  const replacedStringInclusion = data.content?.inclusion?.replaceAll(
+  const replacedStringInclusion = propertyDetail?.content.inclusion.replaceAll(
     ", ",
     " | "
   );
+
+  useEffect(() => {
+    setPropertyDetail(data);
+  }, []);
 
   const handleShowLocation = async () => {
     setIsMapRendering(true);
@@ -54,8 +63,8 @@ export default function Details() {
     if (currentPermission.status === "granted") {
       setPropertyLocation({
         ...propertyLocation,
-        latitude: parseFloat(data.content.coordinates.latitude),
-        longitude: parseFloat(data.content.coordinates.longitude),
+        latitude: parseFloat(propertyDetail?.content.coordinates.latitude),
+        longitude: parseFloat(propertyDetail?.content.coordinates.longitude),
       });
       setIsShowLocationPressed(true);
     } else {
@@ -64,8 +73,8 @@ export default function Details() {
       if (requestPermission.status === "granted") {
         setPropertyLocation({
           ...propertyLocation,
-          latitude: parseFloat(data.content.coordinates.latitude),
-          longitude: parseFloat(data.content.coordinates.longitude),
+          latitude: parseFloat(propertyDetail?.content.coordinates.latitude),
+          longitude: parseFloat(propertyDetail?.content.coordinates.longitude),
         });
         setIsShowLocationPressed(true);
       } else {
@@ -164,8 +173,8 @@ export default function Details() {
 
           <Image
             source={
-              data.image
-                ? { uri: `${serverSideUrl}${data.image}` }
+              propertyDetail?.image
+                ? { uri: `${serverSideUrl}${propertyDetail?.image}` }
                 : require("@/assets/images/no_image_found.jpg")
             }
             resizeMode="stretch"
@@ -189,21 +198,61 @@ export default function Details() {
               alignItems: "flex-end",
             }}
           >
-            {data.is_saved ? (
-              <TouchableOpacity>
-                <Fontisto
-                  name="favorite"
-                  size={35}
-                  color={Colors.primaryColor1}
-                />
+            {propertyDetail?.is_saved ? (
+              <TouchableOpacity
+                onPress={() => {
+                  UnsaveFeedAPI(
+                    propertyDetail?.saved_feed_id,
+                    toast,
+                    setIsUnsaveLoading,
+                    setPropertyDetail
+                  );
+                }}
+              >
+                {isUnsaveLoading ? (
+                  <ActivityIndicator
+                    color={
+                      isDarkMode
+                        ? Colors.secondaryColor1
+                        : Colors.secondaryColor3
+                    }
+                    size={30}
+                  />
+                ) : (
+                  <Fontisto
+                    name="favorite"
+                    size={35}
+                    color={Colors.primaryColor1}
+                  />
+                )}
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity>
-                <Fontisto
-                  name="favorite"
-                  size={35}
-                  color={Colors.secondaryColor2}
-                />
+              <TouchableOpacity
+                onPress={() => {
+                  SaveFeedAPI(
+                    propertyDetail?.id,
+                    toast,
+                    setIsSaveLoading,
+                    setPropertyDetail
+                  );
+                }}
+              >
+                {isSaveLoading ? (
+                  <ActivityIndicator
+                    color={
+                      isDarkMode
+                        ? Colors.secondaryColor1
+                        : Colors.secondaryColor3
+                    }
+                    size={30}
+                  />
+                ) : (
+                  <Fontisto
+                    name="favorite"
+                    size={35}
+                    color={Colors.secondaryColor2}
+                  />
+                )}
               </TouchableOpacity>
             )}
           </View>
@@ -220,11 +269,11 @@ export default function Details() {
                 fontSize: FontSizes.normal,
                 fontFamily: "Inter",
               }}
-              value={data.content.type}
+              value={propertyDetail?.content.type}
             />
             <ThemedText
               style={{ fontSize: FontSizes.small, fontFamily: "Inter" }}
-              value={`Php ${data.content.rent} / Month`}
+              value={`Php ${propertyDetail?.content.rent} / Month`}
             />
           </View>
           <View>
@@ -245,12 +294,12 @@ export default function Details() {
                   width: Viewport.width * 0.65,
                   fontFamily: "Inter",
                 }}
-                value={`${data.content.address.street_1}${
-                  data.content.address.street_2
-                    ? " " + data.content.address.street_2
+                value={`${propertyDetail?.content.address.street_1}${
+                  propertyDetail?.content.address.street_2
+                    ? " " + propertyDetail?.content.address.street_2
                     : ""
-                }, ${data.content.address.street_3}, ${
-                  data.content.address.city
+                }, ${propertyDetail?.content.address.street_3}, ${
+                  propertyDetail?.content.address.city
                 }`}
               />
               <Button
@@ -301,7 +350,7 @@ export default function Details() {
             />
             <ThemedText
               style={{ fontSize: FontSizes.small, fontFamily: "Inter" }}
-              value={data.content.description}
+              value={propertyDetail?.content.description}
             />
           </View>
           <View>
@@ -328,11 +377,11 @@ export default function Details() {
               justifyContent: "space-between",
             }}
             onPress={() => {
-              let phoneNumber = data.content.landlord_contactnumber;
+              let phoneNumber = propertyDetail?.content.landlord_contactnumber;
               if (Platform.OS !== "android") {
-                phoneNumber = `telprompt:${data.content.landlord_contactnumber}`;
+                phoneNumber = `telprompt:${propertyDetail?.content.landlord_contactnumber}`;
               } else {
-                phoneNumber = `tel:${data.content.landlord_contactnumber}`;
+                phoneNumber = `tel:${propertyDetail?.content.landlord_contactnumber}`;
               }
               Linking.canOpenURL(phoneNumber)
                 .then((supported) => {
@@ -360,8 +409,8 @@ export default function Details() {
             >
               <Image
                 source={
-                  data.owner_image
-                    ? { uri: `${serverSideUrl}${data.owner_image}` }
+                  propertyDetail?.owner_image
+                    ? { uri: `${serverSideUrl}${propertyDetail?.owner_image}` }
                     : require("@/assets/images/no_user_image_found.jpg")
                 }
                 resizeMode="stretch"
@@ -378,11 +427,11 @@ export default function Details() {
                     fontSize: FontSizes.small,
                     fontFamily: "Inter",
                   }}
-                  value={data.content.landlord_fullname}
+                  value={propertyDetail?.content.landlord_fullname}
                 />
                 <ThemedText
                   style={{ fontSize: FontSizes.small, fontFamily: "Inter" }}
-                  value={data.content.landlord_contactnumber}
+                  value={propertyDetail?.content.landlord_contactnumber}
                 />
               </View>
             </View>
@@ -410,12 +459,12 @@ export default function Details() {
             />
             <ThemedText
               style={{ fontSize: FontSizes.small, fontFamily: "Inter" }}
-              value={`${data.content.number_of_vacant_male} male`}
+              value={`${propertyDetail?.content.number_of_vacant_male} male`}
             />
 
             <ThemedText
               style={{ fontSize: FontSizes.small, fontFamily: "Inter" }}
-              value={`${data.content.number_of_vacant_female} female`}
+              value={`${propertyDetail?.content.number_of_vacant_female} female`}
             />
           </View>
           <View

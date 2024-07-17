@@ -28,10 +28,10 @@ import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { ThemedContainer } from "@/components/ThemedContainer";
 import { ExternalLink } from "@/components/ExternalLink";
 import { Fontisto, Entypo, Feather } from "@expo/vector-icons";
-import { PropertyDetails } from "@/interfaces/PropertyDetailsProps";
+import { PublicFeedData } from "@/interfaces/PropertyDetailsProps";
 
 export default function Index() {
-  const [publicFeedData, setPublicFeedData] = useState<PropertyDetails[]>([]);
+  const [publicFeedData, setPublicFeedData] = useState<PublicFeedData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [isUserSessionValidated, setIsUserSessionValidated] =
