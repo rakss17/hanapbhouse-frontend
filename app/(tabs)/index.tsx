@@ -184,13 +184,33 @@ export default function Index() {
       );
 
       if (data.feed_data && data.feed_data.length > 0) {
-        setPublicFeedData((prevData) => [
-          ...prevData,
-          ...data.feed_data.filter(
+        setPublicFeedData((prevData) => {
+          const newDataMap = new Map<any, any>(
+            data.feed_data.map((item: any) => [
+              item.id,
+              { is_saved: item.is_saved, saved_feed_id: item.saved_feed_id },
+            ])
+          );
+
+          const updatedPrevData = prevData.map((item) => {
+            if (newDataMap.has(item.id)) {
+              const newItemData = newDataMap.get(item.id);
+              return {
+                ...item,
+                is_saved: newItemData.is_saved,
+                saved_feed_id: newItemData.saved_feed_id,
+              };
+            }
+            return item;
+          });
+
+          const newItems = data.feed_data.filter(
             (item: any) =>
               !prevData.some((existingItem) => existingItem.id === item.id)
-          ),
-        ]);
+          );
+
+          return [...updatedPrevData, ...newItems];
+        });
 
         setNextPage(data.next_page);
       }
