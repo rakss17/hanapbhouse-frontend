@@ -15,7 +15,7 @@ import { Button } from "@/components/Button";
 import { useToast } from "react-native-toast-notifications";
 import { useDispatch, useSelector } from "react-redux";
 import { ResetPasswordAPI, SigninAPI } from "@/components/Api";
-import { CustomizedModal } from "@/components/CustomizedModat";
+import { CustomizedModal } from "@/components/CustomizedModal";
 import { RootState } from "@/lib/store";
 
 export default function Signin() {
@@ -267,7 +267,6 @@ export default function Signin() {
           width: Viewport.width * 0.85,
           height: Viewport.height * 0.42,
           borderRadius: 25,
-          backgroundColor: Colors.primaryColor2,
           gap: 10,
         }}
       >

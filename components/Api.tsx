@@ -14,11 +14,9 @@ import {
 const debug = true;
 
 export let serverSideUrl: any;
-export let serverSideMediaUrl: any;
 
 if (debug) {
-  serverSideUrl = "http://192.168.1.17:8000/";
-  serverSideMediaUrl = "http://192.168.1.17:8000/media/";
+  serverSideUrl = "http://192.168.77.188:8000/";
 }
 
 const instance = axios.create({
@@ -165,7 +163,6 @@ export async function SigninAPI(
       },
     });
 
-    dispatch(setUserInfo(userInfoAPI.data));
     dispatch(setIsLoggedIn(true));
     setAccessToken(signInResponse.data.access);
     setRefreshToken(signInResponse.data.refresh);
@@ -184,6 +181,7 @@ export async function SigninAPI(
       }, 1000);
     } else {
       setTimeout(() => {
+        dispatch(setUserInfo(userInfoAPI.data));
         dispatch(setOnAdmission(false));
         router.push("/(tabs)");
         setIsSuccess(false);
@@ -243,39 +241,42 @@ export async function TokenRevalidation(
           animationType: "slide-in",
         });
       });
+    return true;
   } catch (error: any) {
     const refreshToken = await getRefreshToken();
     setIsRestoringSessionLoading(true);
     setRestoringMessage("Renewing session.");
-    await instance
-      .post("api/v1/accounts/jwt/refresh/", { refresh: refreshToken })
-      .then((response) => {
-        setAccessToken(response.data.access);
-        setIsRestoringSessionLoading(false);
-        toast.show("Session renewed.", {
-          type: "success",
-          placement: "top",
-          duration: 3000,
-          animationType: "slide-in",
-        });
-      })
-      .catch(() => {
-        setIsRestoringSessionLoading(false);
-        toast.show("Session expired. Please login again.", {
-          type: "warning",
-          placement: "top",
-          duration: 3000,
-          animationType: "slide-in",
-        });
-        setTimeout(() => {
-          AsyncStorage.clear();
-          dispatch(setUserInfo(null));
-          dispatch(setIsLoggedIn(false));
-          dispatch(setOnAdmission(false));
-          router.push("/(auth)/(signin)");
-        }, 700);
+    try {
+      const response = await instance.post("api/v1/accounts/jwt/refresh/", {
+        refresh: refreshToken,
       });
+      await setAccessToken(response.data.access);
+      setIsRestoringSessionLoading(false);
+      toast.show("Session renewed.", {
+        type: "success",
+        placement: "top",
+        duration: 3000,
+        animationType: "slide-in",
+      });
+      return true;
+    } catch (refreshError) {
+      setIsRestoringSessionLoading(false);
+      toast.show("Session expired. Please login again.", {
+        type: "warning",
+        placement: "top",
+        duration: 3000,
+        animationType: "slide-in",
+      });
+      setTimeout(() => {
+        AsyncStorage.clear();
+        dispatch(setUserInfo(null));
+        dispatch(setIsLoggedIn(false));
+        dispatch(setOnAdmission(false));
+        router.push("/(auth)/(signin)");
+      }, 700);
+    }
   }
+  return false;
 }
 
 export async function ResetPasswordAPI(
@@ -414,7 +415,7 @@ export async function FinishingAdmissionAPI(
 ) {
   try {
     const accessToken = await getAccessToken();
-    await instance.patch(
+    const userInfoAPI = await instance.patch(
       "api/v1/accounts/me/",
       {
         preferred_area: preferredArea,
@@ -426,6 +427,7 @@ export async function FinishingAdmissionAPI(
         },
       }
     );
+    dispatch(setUserInfo(userInfoAPI.data));
     setIsLoading(false);
     setIsSuccess(true);
     dispatch(setOnAdmission(false));
@@ -445,6 +447,146 @@ export async function FinishingAdmissionAPI(
       setIsSuccess(false);
       router.push("/(tabs)");
     }, 1000);
+  } catch (error: any) {
+    setIsLoading(false);
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
+
+export async function FetchPublicFeedsAPI(
+  page: number,
+  street_3: string | undefined,
+  city: string | undefined,
+  category: string | undefined,
+  toast: any
+) {
+  try {
+    const accessToken = await getAccessToken();
+    const response = await instance.get(
+      `api/v1/feed/public-feed-listing/?page=${page}&street_3=${street_3}&city=${city}&category=${category}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
+
+export async function FetchSavedFeedsAPI(page: number, toast: any) {
+  try {
+    const accessToken = await getAccessToken();
+    const response = await instance.get(
+      "api/v1/feed/saved-feed-creation-listing/",
+      {
+        params: {
+          page: page,
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
+
+export async function SaveFeedAPI(
+  feedId: any,
+  toast: any,
+  setIsLoading: any,
+  setPropertyDetail: any
+) {
+  setIsLoading(true);
+  try {
+    const accessToken = await getAccessToken();
+    await instance
+      .post(
+        "api/v1/feed/saved-feed-creation-listing/",
+        {
+          feed_id: feedId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        setIsLoading(false);
+        setPropertyDetail((prevData: any) => ({
+          ...prevData,
+          is_saved: response.data.is_saved,
+          saved_feed_id: response.data.saved_feed_id,
+        }));
+      });
+  } catch (error: any) {
+    setIsLoading(false);
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
+
+export async function UnsaveFeedAPI(
+  feedId: any,
+  toast: any,
+  setIsLoading: any,
+  setPropertyDetail: any
+) {
+  setIsLoading(true);
+  try {
+    const accessToken = await getAccessToken();
+    await instance
+      .delete(
+        `api/v1/feed/unsaved-feed/${feedId}/`,
+
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then(() => {
+        setIsLoading(false);
+        setPropertyDetail((prevData: any) => ({
+          ...prevData,
+          is_saved: false,
+        }));
+      });
   } catch (error: any) {
     setIsLoading(false);
     let error_message = parseError(error);

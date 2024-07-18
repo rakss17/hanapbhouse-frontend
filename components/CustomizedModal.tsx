@@ -3,6 +3,10 @@ import { Viewport } from "@/styles/styles";
 import { Modal, View, Text } from "react-native";
 import { useEffect } from "react";
 import { BackHandler } from "react-native";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
+import { Colors } from "@/styles/styles";
+import { ThemedText } from "./ThemedText";
 
 export const CustomizedModal: React.FC<ModalProps> = ({
   visible,
@@ -15,6 +19,9 @@ export const CustomizedModal: React.FC<ModalProps> = ({
   children,
   onCloseRequest,
 }) => {
+  const isDarkMode = useSelector(
+    (state: RootState) => state.statusInfo.is_dark_mode
+  );
   useEffect(() => {
     if (visible) {
       const backAction = () => {
@@ -51,12 +58,15 @@ export const CustomizedModal: React.FC<ModalProps> = ({
           style={[
             viewStyle,
             {
-              paddingTop: Viewport.height * 0.03,
-              paddingLeft: Viewport.width * 0.08,
+              backgroundColor: isDarkMode
+                ? Colors.primaryDarkModeColor2
+                : Colors.secondaryColor1,
             },
           ]}
         >
-          {hasHeader && <Text style={[headerStyle]}>{headerContent}</Text>}
+          {hasHeader && (
+            <ThemedText style={[headerStyle]} value={headerContent} />
+          )}
           {children}
         </View>
       </View>

@@ -15,6 +15,7 @@ export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
       loadingSize,
       loadingText,
       disabled,
+      children,
     },
     ref
   ) => {
@@ -31,7 +32,7 @@ export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
             <ActivityIndicator color={loadingColor} size={loadingSize} />
           </View>
         ) : (
-          <Text style={textStyle}>{text}</Text>
+          <>{children ? children : <Text style={textStyle}>{text}</Text>}</>
         )}
 
         {text2 && <Text style={textStyle}>{text2}</Text>}

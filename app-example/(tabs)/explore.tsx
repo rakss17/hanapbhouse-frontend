@@ -2,7 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { StyleSheet, Image, Platform } from "react-native";
 
 import { Collapsible } from "@/components/samples/Collapsible";
-import { ExternalLink } from "@/components/samples/ExternalLink";
+import { ExternalLink } from "@/components/ExternalLink";
 import ParallaxScrollView from "@/components/samples/ParallaxScrollView";
 import { ThemedText } from "@/components/samples/ThemedText";
 import { ThemedView } from "@/components/samples/ThemedView";
