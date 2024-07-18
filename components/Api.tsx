@@ -16,7 +16,7 @@ const debug = true;
 export let serverSideUrl: any;
 
 if (debug) {
-  serverSideUrl = "http://192.168.77.188:8000/";
+  serverSideUrl = "http://192.168.39.188:8000/";
 }
 
 const instance = axios.create({
@@ -589,6 +589,31 @@ export async function UnsaveFeedAPI(
       });
   } catch (error: any) {
     setIsLoading(false);
+    let error_message = parseError(error);
+    toast.show(error_message, {
+      type: "danger",
+      placement: "top",
+      duration: 6000,
+      animationType: "slide-in",
+    });
+  }
+}
+
+export async function FetchAllConversationAPI(page: number, toast: any) {
+  try {
+    const accessToken = await getAccessToken();
+    const response = await instance.get("api/v1/message/all-conversation/", {
+      params: {
+        page: page,
+      },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
     let error_message = parseError(error);
     toast.show(error_message, {
       type: "danger",
