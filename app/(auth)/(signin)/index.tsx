@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ResetPasswordAPI, SigninAPI } from "@/components/Api";
 import { CustomizedModal } from "@/components/CustomizedModal";
 import { RootState } from "@/lib/store";
+import { ThemedText } from "@/components/ThemedText";
 
 export default function Signin() {
   const loginStatusInfo = useSelector(
@@ -24,6 +25,9 @@ export default function Signin() {
   );
   const admissionStatus = useSelector(
     (state: RootState) => state.statusInfo.on_admission
+  );
+  const isDarkMode = useSelector(
+    (state: RootState) => state.statusInfo.is_dark_mode
   );
   const fontLoaded = customizeFont();
   const toast = useToast();
@@ -74,6 +78,28 @@ export default function Signin() {
     const errorArray = [validationErrors];
     setErrorMessages(errorArray);
   }, [isErrorEmail]);
+
+  const inputFieldColorMode = (): (
+    | "light"
+    | "dark"
+    | "error"
+    | "light-error"
+    | "dark-error"
+  )[] => {
+    if (errorMessages[0]?.email) {
+      if (isDarkMode) {
+        return ["error", "light-error"];
+      } else {
+        return ["error", "dark-error"];
+      }
+    } else {
+      if (isDarkMode) {
+        return ["light"];
+      } else {
+        return ["dark"];
+      }
+    }
+  };
 
   return (
     <KeyboardAwareScrollView
@@ -268,18 +294,19 @@ export default function Signin() {
           height: Viewport.height * 0.42,
           borderRadius: 25,
           gap: 10,
+          paddingTop: Viewport.height * 0.02,
+          paddingLeft: Viewport.width * 0.07,
         }}
       >
-        <Text
+        <ThemedText
           style={{
             fontSize: FontSizes.small,
             fontFamily: "Inter",
             width: Viewport.width * 0.7,
           }}
-        >
-          Please input the email address registered with your account below, and
-          we'll email instructions to reset your password.
-        </Text>
+          value="Please input the email address registered with your account below, and
+          we'll email instructions to reset your password."
+        />
         <View
           style={{
             height: Viewport.height * 0.06,
@@ -305,7 +332,7 @@ export default function Signin() {
               }
             }}
             floatingPlaceHolder
-            colors={errorMessages[0]?.email ? ["error"] : ["dark"]}
+            colors={inputFieldColorMode()}
           />
           {errorMessages[0]?.email && (
             <Text
@@ -345,7 +372,9 @@ export default function Signin() {
             }}
             disabled={isLoading || isSuccess ? true : false}
             textStyle={{
-              color: Colors.secondaryColor3,
+              color: isDarkMode
+                ? Colors.secondaryColor1
+                : Colors.secondaryColor3,
               fontSize: FontSizes.small,
             }}
             onPress={() => {
