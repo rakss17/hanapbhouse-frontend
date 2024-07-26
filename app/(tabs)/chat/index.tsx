@@ -29,50 +29,14 @@ export default function Chats() {
   const toast = useToast();
 
   const loadChatMessages = async () => {
+    setChatsData([]);
     try {
       setIsLoading(true);
       const messages = await FetchAllConversationAPI(page, toast);
       console.log(messages);
 
       if (messages.message_data && messages.message_data.length > 0) {
-        setChatsData((prevData) => {
-          const newDataMap = new Map<any, any>(
-            messages.message_data.map((item: any) => [
-              item.id,
-              {
-                is_read_by_receiver: item.is_read_by_receiver,
-                content: item.content,
-                send_timestamp: item.send_timestamp,
-              },
-            ])
-          );
-
-          const updatedPrevData = prevData.map((item) => {
-            if (newDataMap.has(item.id)) {
-              const newItemData = newDataMap.get(item.id);
-              return {
-                ...item,
-                is_read_by_receiver: newItemData.is_read_by_receiver,
-                content: newItemData.content,
-                send_timestamp: newItemData.send_timestamp,
-              };
-            }
-            return item;
-          });
-
-          const newItems = messages.message_data.filter(
-            (item: any) =>
-              !prevData.some(
-                (existingItem) =>
-                  (existingItem.sender === item.sender &&
-                    existingItem.receiver === item.receiver) ||
-                  (existingItem.sender === item.receiver &&
-                    existingItem.receiver === item.sender)
-              )
-          );
-
-          return [...updatedPrevData, ...newItems];
-        });
+        setChatsData(messages.message_data);
 
         setNextPage(messages.next_page);
       }
