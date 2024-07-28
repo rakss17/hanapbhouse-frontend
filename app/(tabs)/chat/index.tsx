@@ -16,6 +16,7 @@ import {
 import { useToast } from "react-native-toast-notifications";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
+import { useRouter } from "expo-router";
 
 export default function Chats() {
   const [page, setPage] = useState<number>(1);
@@ -27,6 +28,7 @@ export default function Chats() {
   );
   const userInfo = useSelector((state: RootState) => state.userInfo.data);
   const toast = useToast();
+  const router = useRouter();
 
   const loadChatMessages = async () => {
     setChatsData([]);
@@ -127,12 +129,12 @@ export default function Chats() {
                   gap: Viewport.width * 0.03,
                 }}
                 onPress={() => {
-                  // router.push({
-                  //   pathname: `/property_details`,
-                  //   params: {
-                  //     item: encodeURIComponent(JSON.stringify(item)),
-                  //   },
-                  // });
+                  router.push({
+                    pathname: `/chat/chat_room`,
+                    params: {
+                      item: encodeURIComponent(JSON.stringify(item)),
+                    },
+                  });
                 }}
               >
                 {userInfo?.id === item.sender ? (
