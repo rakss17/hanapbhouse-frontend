@@ -1,17 +1,31 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ThemedContainer } from "@/components/ThemedContainer";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors, FontSizes, Viewport } from "@/styles/styles";
 import { StatusBar } from "expo-status-bar";
-import { Image, Text, TouchableOpacity, View } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { serverSideUrl } from "@/components/Api";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { FetchConversationMessagesAPI, serverSideUrl } from "@/components/Api";
 import { useSelector } from "react-redux";
+import { useToast } from "react-native-toast-notifications";
 import { RootState } from "@/lib/store";
 import { AntDesign } from "@expo/vector-icons";
+import { MessageProps } from "@/interfaces/MessageProps";
 
 export default function ChatRoom() {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [messageHeaderData, setMessageHeaderData] = useState<any>();
+  const [messagesData, setMessagesData] = useState<MessageProps[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [nextPage, setNextPage] = useState<number | null>(null);
   const params = useLocalSearchParams<any>();
   const data = JSON.parse(decodeURIComponent(params.item));
   useEffect(() => {
@@ -21,6 +35,44 @@ export default function ChatRoom() {
     (state: RootState) => state.statusInfo.is_dark_mode
   );
   const userInfo = useSelector((state: RootState) => state.userInfo.data);
+  const toast = useToast();
+
+  const loadChatMessages = async () => {
+    try {
+      setIsLoading(true);
+      const messages = await FetchConversationMessagesAPI(
+        page,
+        toast,
+        messageHeaderData?.room_name
+      );
+
+      if (messages.message_data && messages.message_data.length > 0) {
+        setMessagesData((old) => {
+          const newData = messages.message_data.filter(
+            (newItem: any) => !old.some((oldItem) => oldItem.id === newItem.id)
+          );
+          return [...old, ...newData];
+        });
+        setNextPage(messages.next_page);
+      }
+    } catch (error) {
+      console.error("Error loading chats data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadChatMessages();
+    }, [page, messageHeaderData?.room_name])
+  );
+
+  const handleLoadMore = () => {
+    if (nextPage) {
+      setPage(nextPage);
+    }
+  };
 
   return (
     <>
@@ -115,6 +167,68 @@ export default function ChatRoom() {
             </View>
           </View>
         </View>
+        <FlatList
+          data={messagesData}
+          keyExtractor={(item: any) => item.id}
+          contentContainerStyle={{
+            marginTop: Viewport.height * 0.02,
+            width: Viewport.width * 1,
+            alignItems: "center",
+            gap: 20,
+            paddingBottom: Viewport.height * 0.05,
+          }}
+          inverted
+          renderItem={({ item }: any) => (
+            <Pressable
+              style={{
+                alignItems:
+                  userInfo?.id === item.sender ? "flex-end" : "flex-start",
+                width: Viewport.width * 1,
+                paddingHorizontal: 15,
+              }}
+            >
+              <Text
+                style={{
+                  backgroundColor:
+                    userInfo?.id === item.sender
+                      ? Colors.primaryColor1
+                      : isDarkMode
+                      ? Colors.secondaryColor4
+                      : Colors.secondaryColor2,
+                  padding: 15,
+                  borderRadius: 20,
+                  color:
+                    userInfo?.id === item.sender
+                      ? Colors.secondaryColor1
+                      : isDarkMode
+                      ? Colors.secondaryColor1
+                      : Colors.secondaryColor3,
+                  maxWidth: Viewport.width * 0.5,
+                }}
+              >
+                {item.content}
+              </Text>
+              <ThemedText
+                value={item.send_timestamp}
+                style={{ paddingHorizontal: 15 }}
+              />
+            </Pressable>
+          )}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.2}
+          ListFooterComponent={
+            <>
+              {isLoading && (
+                <ActivityIndicator
+                  size={35}
+                  color={
+                    isDarkMode ? Colors.secondaryColor1 : Colors.secondaryColor3
+                  }
+                />
+              )}
+            </>
+          }
+        />
       </ThemedContainer>
     </>
   );

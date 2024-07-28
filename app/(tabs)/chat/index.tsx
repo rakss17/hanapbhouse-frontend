@@ -60,7 +60,7 @@ export default function Chats() {
       setPage(nextPage);
     }
   };
-  console.log("chat data", chatsData);
+
   return (
     <ThemedContainer>
       <View
