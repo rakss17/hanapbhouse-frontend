@@ -27,6 +27,8 @@ export const InputField: React.FC<InputFieldProps> = ({
   onPressableFocus,
   hasSearchIcon,
   searchIconLeft,
+  onContentSizeChange,
+  multiline,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(!!value);
@@ -255,6 +257,8 @@ export const InputField: React.FC<InputFieldProps> = ({
         onBlur={handleBlur}
         placeholderTextColor={placeholderTextColor}
         secureTextEntry={secureTextEntry && !showPassword}
+        onContentSizeChange={onContentSizeChange}
+        multiline={multiline}
       />
       {secureTextEntry && (
         <TouchableOpacity

@@ -1,4 +1,11 @@
-import { ViewStyle, StyleProp, KeyboardTypeOptions } from "react-native";
+import {
+  ViewStyle,
+  TextStyle,
+  StyleProp,
+  KeyboardTypeOptions,
+  NativeSyntheticEvent,
+  TextInputContentSizeChangeEventData,
+} from "react-native";
 
 export interface InputFieldProps {
   value: string;
@@ -6,7 +13,7 @@ export interface InputFieldProps {
   secureTextEntry?: boolean;
   onChangeText: (text: string) => void;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle | TextStyle>;
   floatingPlaceHolder?: boolean;
   keyboardType?: KeyboardTypeOptions;
   colors?: ("dark" | "light" | "error" | "light-error" | "dark-error")[];
@@ -16,4 +23,8 @@ export interface InputFieldProps {
   onPressableFocus?: () => void;
   hasSearchIcon?: boolean;
   searchIconLeft?: any;
+  onContentSizeChange?: (
+    e: NativeSyntheticEvent<TextInputContentSizeChangeEventData>
+  ) => void;
+  multiline?: boolean;
 }
